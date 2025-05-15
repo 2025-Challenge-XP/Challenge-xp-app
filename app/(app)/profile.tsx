@@ -15,6 +15,7 @@ export default function ProfileScreen() {
   const [lastLogin, setLastLogin] = useState<Date | null>(null);
   const email = user?.email || 'No email';
   const username = email.split('@')[0];
+  const avatar = user?.user_metadata?.avatar_url || 'https://images.pexels.com/photos/1270076/pexels-photo-1270076.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2';
   
   // Get user metadata
   useEffect(() => {
@@ -47,7 +48,7 @@ export default function ProfileScreen() {
         >
           <View style={styles.avatarContainer}>
             <Image 
-              source={{ uri: 'https://images.pexels.com/photos/1270076/pexels-photo-1270076.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' }} 
+              source={avatar} 
               style={styles.avatar}
             />
             <View style={styles.editAvatarButton}>

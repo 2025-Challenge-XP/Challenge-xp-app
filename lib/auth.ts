@@ -26,16 +26,55 @@ export const signInWithEmail = async (email: string, password: string): Promise<
   }
 };
 
-// Sign up with email and password
-export const signUpWithEmail = async (email: string, password: string, nickname: string): Promise<AuthError | null> => {
+export const uploadProfileImage = async (profileImageUri: string): Promise<string | null> => {
   try {
+    // Fetch the image as a blob
+    const response = await fetch(profileImageUri);
+    const blob = await response.blob();
+
+    // Generate a unique filename
+    const fileName = `avatars/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+
+    // Upload the blob to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, blob, {
+        contentType: 'image/jpeg',
+        upsert: true,
+      });
+
+    if (error) {
+      console.error('Error uploading image:', error.message);
+      return null;
+    }
+
+    // Get the public URL of the uploaded image
+    const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+    return publicUrlData.publicUrl;
+  } catch (error) {
+    console.error('Error processing image upload:', error);
+    return null;
+  }
+};
+
+// Sign up with email and password
+export const signUpWithEmail = async (email: string, password: string, nickname: string, profileImageUri: string): Promise<AuthError | null> => {
+  try {
+    // Upload profile image and get public URL
+    const profileImageUrl = await uploadProfileImage(profileImageUri);
+
+    if (!profileImageUrl) {
+      return { message: 'Failed to upload profile image' };
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-        first_name: nickname
-        }
+          first_name: nickname,
+          avatar_url: profileImageUrl,
+        },
       },
     });
 
@@ -45,10 +84,20 @@ export const signUpWithEmail = async (email: string, password: string, nickname:
 
     // In production, you might want to show a "Verification email sent" screen instead
     // For now, we'll just sign the user in directly
+    console.log('Signing up with email:', email, 'and password:', password);
+    console.log('Nickname:', nickname);
+    console.log('Profile image:', profileImageUri);
     return await signInWithEmail(email, password);
   } catch (error: any) {
     return { message: error.message || 'An unexpected error occurred' };
   }
+};
+
+export const base64ToBlob = (base64: string, contentType: string = ''): Blob => {
+  const byteCharacters = atob(base64.split(',')[1]);
+  const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: contentType });
 };
 
 // Reset password

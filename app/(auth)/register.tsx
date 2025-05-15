@@ -8,31 +8,70 @@ import { signUpWithEmail } from '@/lib/auth';
 import { theme } from '@/lib/theme';
 import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
 import { Header } from '@/components/ui/Header';
+import * as ImagePicker from 'expo-image-picker';
+import { Camera, Pencil } from 'lucide-react-native'; // certifique-se de ter esse pacote instalado
+
 
 export default function RegisterScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState(''); 
+
+  const handlePickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert('Permission to access media library is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
+  };
 
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
     setError(null);
-    
-    const result = await signUpWithEmail(data.email, data.password, data.nickname);
-    
+
+    // Aqui você pode enviar a imagem para o backend junto com os dados do formulário
+    const result = await signUpWithEmail(data.email, data.password, data.nickname, profileImage);
+
     if (result) {
       setError(result.message);
     }
-    
+
     setIsLoading(false);
   };
 
   return (
     <SafeAreaWrapper style={styles.container}>
-      
       <Animated.View 
         style={styles.content} 
         entering={SlideInRight.duration(400).springify()}
       >
+      <TouchableOpacity onPress={handlePickImage} activeOpacity={0.8} style={styles.imagePickerContainer}>
+        {profileImage ? (
+          <View style={styles.imageWrapper}>
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+            <TouchableOpacity style={styles.editIcon} onPress={handlePickImage}>
+              <Pencil color="#fff" size={18} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.placeholderImage}>
+            <Camera color="#aaa" size={32} />
+          </View>
+        )}
+      </TouchableOpacity>
+
         <AuthForm
           type="register"
           onSubmit={handleRegister}
@@ -63,14 +102,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: theme.spacing.lg,
   },
-  logoContainer: {
+  imagePickerContainer: {
+    marginBottom: theme.spacing.lg,
     alignItems: 'center',
-    marginBottom: theme.spacing.xl,
   },
-  logoImage: {
-    width: 70,
-    height: 70,
-    borderRadius: theme.borderRadius.round,
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  placeholderImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: theme.colors.neutrals[200],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: theme.colors.neutrals[600],
+    fontFamily: theme.typography.fontFamily.medium,
   },
   footer: {
     flexDirection: 'row',
@@ -87,4 +138,21 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.md,
     color: theme.colors.primary[500],
   },
+
+
+imageWrapper: {
+  position: 'relative',
+  width: 120,
+  height: 120,
+},
+
+editIcon: {
+  position: 'absolute',
+  bottom: 4,
+  right: 4,
+  backgroundColor: '#00000099',
+  borderRadius: 16,
+  padding: 6,
+},
 });
+
