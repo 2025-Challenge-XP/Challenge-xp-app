@@ -6,6 +6,8 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
+import { FormProvider } from '@/contexts/FormContext';
+import { ReactNode } from 'react';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -56,12 +58,19 @@ function RootLayoutNav() {
 }
 
 // Root layout component
-export default function RootLayout() {
+interface RootLayoutProps {
+  children: ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   useFrameworkReady();
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <RootLayoutNav />
+        <FormProvider>
+          <RootLayoutNav />
+          {children}
+        </FormProvider>
       </AuthProvider>
       <StatusBar style="auto" />
     </SafeAreaProvider>

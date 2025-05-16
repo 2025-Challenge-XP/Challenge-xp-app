@@ -14,7 +14,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [lastLogin, setLastLogin] = useState<Date | null>(null);
   const email = user?.email || 'No email';
-  const username = email.split('@')[0];
+  const username = user?.user_metadata.first_name || 'User';
   const avatar = user?.user_metadata?.avatar_url || 'https://images.pexels.com/photos/1270076/pexels-photo-1270076.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2';
   
   // Get user metadata

@@ -68,6 +68,9 @@ export default function RegisterScreen() {
         ) : (
           <View style={styles.placeholderImage}>
             <Camera color="#aaa" size={32} />
+            <TouchableOpacity style={styles.editIcon} onPress={handlePickImage}>
+              <Pencil color="#fff" size={18} />
+            </TouchableOpacity>
           </View>
         )}
       </TouchableOpacity>
@@ -103,8 +106,8 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
   },
   imagePickerContainer: {
-    marginBottom: theme.spacing.lg,
     alignItems: 'center',
+    marginTop: theme.spacing.xl,
   },
   profileImage: {
     width: 100,
@@ -142,15 +145,15 @@ const styles = StyleSheet.create({
 
 imageWrapper: {
   position: 'relative',
-  width: 120,
-  height: 120,
+  width: 100,
+  height: 100,
 },
 
 editIcon: {
   position: 'absolute',
   bottom: 4,
   right: 4,
-  backgroundColor: '#00000099',
+  backgroundColor: theme.colors.primary[500],   
   borderRadius: 16,
   padding: 6,
 },

@@ -1,22 +1,38 @@
-import React from 'react';
+import React, { use } from 'react';
 import { StyleSheet, View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaWrapper } from '@/components/ui/SafeAreaWrapper';
 import { useAuth } from '@/contexts/AuthContext';
 import { theme } from '@/lib/theme';
-import { Bell, Search, Calendar, CheckCheck, TrendingUp, Heart } from 'lucide-react-native';
+import { Bell, Search, Calendar, CheckCheck, TrendingUp, Heart, ArrowRight } from 'lucide-react-native';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
+import { useFormContext } from '../../contexts/FormContext';
+import { useEffect } from 'react';
+import { StockSearchModal } from '../../components/ui/StockSearchModal';
+import { useState } from 'react';
+
 
 
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const {recuperarDados} = useFormContext();
+  useEffect(() => {
+    if (recuperarDados) recuperarDados()
+  }, []);
+
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  
+
+  const { formState } = useFormContext();
+  
 
   const { user } = useAuth();
   
   // Get first part of email as username
-  const username = user?.email?.split('@')[0] || 'User';
+  const username = user?.user_metadata.first_name || 'User';
 
   // Data for the dashboard cards
   const dashboardItems = [
@@ -63,10 +79,22 @@ export default function HomeScreen() {
             <Text style={styles.username}>{username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()}</Text>
           </View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Search size={24} color={theme.colors.neutrals[800]} />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => setIsSearchModalVisible(true)}
+          >
+            <Search size={24} color={theme.colors.neutrals[800]} />
+          </TouchableOpacity>
+            <StockSearchModal
+              visible={isSearchModalVisible}
+              searchText={searchText}
+              onChangeSearchText={setSearchText}
+              onClose={() => setIsSearchModalVisible(false)}
+            />
+
+
             <TouchableOpacity style={styles.iconButton}
+            // @ts-ignore
              onPress={() => navigation.navigate('Notifications')}
             >
               <Bell size={24} color={theme.colors.neutrals[800]} />
@@ -89,6 +117,16 @@ export default function HomeScreen() {
             </Text>
           </View>
         </Animated.View>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          // @ts-ignore
+          onPress={() => navigation.navigate('FormPersonal')}
+        >
+          <Text style={styles.actionButtonText}>Iniciar Questionário</Text>
+          <ArrowRight size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+
 
         <Text style={styles.sectionTitle}>Dashboard</Text>
         <View style={styles.dashboardGrid}>
@@ -180,6 +218,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 150,
     position: 'absolute',
+  },
+    actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2563EB',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 24,
+    marginBottom: 32,
+  },
+    actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 8,
   },
   bannerContent: {
     padding: theme.spacing.lg,
