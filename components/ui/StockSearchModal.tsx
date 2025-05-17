@@ -73,7 +73,8 @@ export const StockSearchModal = ({
               <Ionicons name="search" size={22} color={theme.colors.white} />
             </Pressable>
           </View>
-          <View style={{ marginTop: theme.spacing.md }}>
+        </View>
+          <View style={{ marginTop: theme.spacing.md, justifyContent: 'center', alignItems: 'center' }}>
             {loading && <ActivityIndicator color={theme.colors.primary[500]} />}
             {errorMsg && (
               <Text style={styles.errorText}>{errorMsg}</Text>
@@ -82,7 +83,6 @@ export const StockSearchModal = ({
               <StockCard {...stockInfo} />
             )}
           </View>
-        </View>
       </View>
     </Modal>
   );
