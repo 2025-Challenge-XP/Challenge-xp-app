@@ -22,6 +22,12 @@ export default function HomeScreen() {
     if (recuperarDados) recuperarDados()
   }, []);
 
+  const [isSearchButtonExpand, setisSearchButtonExpand] = useState(false);
+
+  const toogleSearchButtonExpand = () => {
+    setisSearchButtonExpand(!isSearchButtonExpand);
+  }
+
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   
@@ -75,13 +81,17 @@ export default function HomeScreen() {
       >
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good morning,</Text>
-            <Text style={styles.username}>{username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()}</Text>
+            <Text style={[styles.greeting, isSearchButtonExpand && { display: "none", }]}   >Good morning,</Text>
+            <Text style={[styles.username, isSearchButtonExpand && { display: "none", }]} >{username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()}</Text>
           </View>
           <View style={styles.headerIcons}>
           <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => setIsSearchModalVisible(true)}
+              style={[
+              styles.iconButtonSearch,
+              isSearchButtonExpand && { flex: 1, alignItems: 'flex-end', paddingRight: theme.spacing.sm, marginLeft: theme.spacing.sm },
+            ]}
+            onPress={() => toogleSearchButtonExpand()}
+            
           >
             <Search size={24} color={theme.colors.neutrals[800]} />
           </TouchableOpacity>
@@ -185,12 +195,23 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.md,
   },
   headerIcons: {
+    flex: 1,
+    justifyContent: 'flex-end',
     flexDirection: 'row',
     gap: theme.spacing.sm,
   },
   iconButton: {
     width: 40,
     height: 40,
+    borderRadius: theme.borderRadius.round,
+    backgroundColor: theme.colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...theme.shadows.small,
+  },
+  iconButtonSearch: {
+    width: 40,
+    height: 40, 
     borderRadius: theme.borderRadius.round,
     backgroundColor: theme.colors.white,
     justifyContent: 'center',

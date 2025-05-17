@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/lib/theme';
 import StockCard from './StockCard';
@@ -11,6 +11,8 @@ type Props = {
   onClose: () => void;
 };
 
+const API_KEY = 'b3e71e3c4e464163a25b11f81032a3d1'; // Substitua pela sua chave
+
 export const StockSearchModal = ({
   visible,
   searchText,
@@ -20,6 +22,46 @@ export const StockSearchModal = ({
   const [stockInfo, setStockInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Autocomplete
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (searchText.length >= 2) {
+        fetchSuggestions(searchText);
+      } else {
+        setSuggestions([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchText]);
+
+  const fetchSuggestions = async (text: string) => {
+    setLoadingSuggestions(true);
+    try {
+      const response = await fetch(
+        'https://oziwendirtmqquvqkree.supabase.co/functions/v1/clever-service',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96aXdlbmRpcnRtcXF1dnFrcmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwOTA4MzksImV4cCI6MjA2MjY2NjgzOX0.PjysWhT8Y32PldsP3OsAefhiKfxjF8naRDhrrSddRVQ',
+          },
+          body: JSON.stringify({ query: text }),
+        }
+      );
+      const data = await response.json();
+      setSuggestions(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setSuggestions([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
 
   const onSearch = async (symbol: string) => {
     setLoading(true);
@@ -49,6 +91,13 @@ export const StockSearchModal = ({
     }
   };
 
+  const handleSelect = (symbol: string) => {
+    onChangeSearchText(symbol);
+    setSuggestions([]); // Fecha as sugestões
+    setTimeout(() => setSuggestions([]), 0); // Força atualização
+    onSearch(symbol);
+  };
+
   return (
     <Modal visible={visible} animationType="fade" transparent>
       <View style={styles.modalOverlay}>
@@ -73,7 +122,21 @@ export const StockSearchModal = ({
               <Ionicons name="search" size={22} color={theme.colors.white} />
             </Pressable>
           </View>
-        </View>
+          {loadingSuggestions && <ActivityIndicator size="small" color={theme.colors.primary[500]} />}
+          {suggestions.length > 0 && (
+            <FlatList
+              data={suggestions}
+              keyExtractor={(item, index) => `${item.symbol}_${index}`}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleSelect(item.symbol)}>
+                  <Text style={styles.suggestionItem}>
+                    {item.symbol} - {item.name} {item.exchange ? `(${item.exchange})` : ''}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              style={styles.suggestionsList}
+            />
+          )}
           <View style={{ marginTop: theme.spacing.md, justifyContent: 'center', alignItems: 'center' }}>
             {loading && <ActivityIndicator color={theme.colors.primary[500]} />}
             {errorMsg && (
@@ -83,6 +146,7 @@ export const StockSearchModal = ({
               <StockCard {...stockInfo} />
             )}
           </View>
+        </View>
       </View>
     </Modal>
   );
@@ -110,7 +174,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: theme.typography.fontSize.lg,
-    fontFamily: theme.typography.fontFamily.medium, // igual ao botão
+    fontFamily: theme.typography.fontFamily.medium,
     color: theme.colors.primary[800],
   },
   closeButton: {
@@ -130,7 +194,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary[300],
     borderRadius: theme.borderRadius.md,
     paddingHorizontal: theme.spacing.md,
-    fontFamily: theme.typography.fontFamily.medium, // igual ao botão
+    fontFamily: theme.typography.fontFamily.medium,
     fontSize: theme.typography.fontSize.md,
     color: theme.colors.primary[900],
     backgroundColor: theme.colors.neutrals[100],
@@ -147,5 +211,23 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.sm,
     marginTop: theme.spacing.xs,
     textAlign: 'center',
+  },
+  suggestionItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#fff',
+    fontFamily: theme.typography.fontFamily.medium,
+    fontSize: theme.typography.fontSize.md,
+    color: theme.colors.primary[900],
+  },
+  suggestionsList: {
+    maxHeight: 150,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginTop: 4,
+    marginBottom: 8,
   },
 });
