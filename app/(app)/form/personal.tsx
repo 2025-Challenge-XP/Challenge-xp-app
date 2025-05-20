@@ -70,6 +70,20 @@ export default function PersonalInfoForm() {
     return datePattern.test(date);
   };
 
+  const validateAge = (date: string) => {
+
+    // Verifica se é maior de idade (18+)
+    const [day, month, year] = date.split('/').map(Number);
+    const birthDate = new Date(year, month - 1, day);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      return age - 1 >= 18;
+    }
+    return age >= 18;
+  };
+
   const handleCPFChange = (text: string) => {
     let formattedText = text.replace(/\D/g, '');
     if (formattedText.length > 11) {
@@ -162,6 +176,9 @@ export default function PersonalInfoForm() {
     } else if (!validateBirthDate(formState.birthDate)) {
       newErrors.birthDate = 'Data inválida (use DD/MM/AAAA)';
       isValid = false;
+    } else if (!validateAge(formState.birthDate)) {
+      newErrors.birthDate = 'Você deve ter pelo menos 18 anos';
+      isValid = false;
     }
     
     setErrors(newErrors);
@@ -181,7 +198,7 @@ export default function PersonalInfoForm() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <FormHeader title="Informações Pessoais" step={1} totalSteps={5} showBackButton={false} />
+      <FormHeader title="Informações Pessoais" step={1} totalSteps={5} showBackButton={true} />
       <ScrollView style={styles.container}>
         <View style={styles.content}>
           <InputField

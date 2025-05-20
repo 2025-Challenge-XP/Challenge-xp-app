@@ -11,6 +11,8 @@ export default function TermsForm() {
   const router = useRouter();
   const navigation = useNavigation();
   const { formState, updateField } = useFormContext();
+  const { salvarDados } = useFormContext();
+  
   
   const [errors, setErrors] = useState({
     terms: '',
@@ -34,8 +36,11 @@ export default function TermsForm() {
 
   const handleSubmit = () => {
     if (validate()) {
-      // @ts-ignore
-      navigation.navigate('FormSuccess');
+      if (salvarDados) {
+        salvarDados();
+        // @ts-ignore
+        navigation.navigate('FormSuccess');
+      }
     }
   };
 
