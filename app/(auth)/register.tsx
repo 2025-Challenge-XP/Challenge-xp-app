@@ -35,6 +35,8 @@ export default function RegisterScreen() {
     if (!result.canceled) {
       setProfileImage(result.assets[0].uri);
     }
+
+    console.log(result);
   };
 
   const handleRegister = async (data: RegisterFormData) => {
@@ -42,7 +44,7 @@ export default function RegisterScreen() {
     setError(null);
 
     // Aqui você pode enviar a imagem para o backend junto com os dados do formulário
-    const result = await signUpWithEmail(data.email, data.password, data.nickname, profileImage);
+    const result = await signUpWithEmail(data.email, data.password, data.nickname, profileImage? profileImage : "");
 
     if (result) {
       setError(result.message);

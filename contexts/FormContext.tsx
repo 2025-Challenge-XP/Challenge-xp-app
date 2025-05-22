@@ -206,8 +206,7 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
       .eq('id', user?.id)
       .single();
     if (error) {
-      console.error('Erro ao recuperar dados do usuário:', error);
-      throw error;
+      console.log('Erro ao recuperar dados do usuário:', error);
     }
     if (data) {
       dispatch({ type: 'UPDATE_FIELD', field: 'fullName', value: data.dados.fullName });

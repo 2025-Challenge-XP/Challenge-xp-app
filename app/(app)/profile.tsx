@@ -16,6 +16,8 @@ export default function ProfileScreen() {
   const email = user?.email || 'No email';
   const username = user?.user_metadata.first_name || 'User';
   const avatar = user?.user_metadata?.avatar_url || 'https://images.pexels.com/photos/1270076/pexels-photo-1270076.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2';
+  console.log('User:', user);
+  console.log('Avatar:', avatar);
   
   // Get user metadata
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function ProfileScreen() {
         >
           <View style={styles.avatarContainer}>
             <Image 
-              source={avatar} 
+              source={{ uri: avatar }} 
               style={styles.avatar}
             />
             <View style={styles.editAvatarButton}>

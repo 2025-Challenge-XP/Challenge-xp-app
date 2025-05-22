@@ -18,7 +18,21 @@ export default function SettingsScreen() {
   };
 
   // Settings sections
-  const sections = [
+  type SettingsItem = {
+    id: string;
+    icon: React.ReactNode;
+    title: string;
+    type: 'switch' | 'link';
+    value?: boolean;
+    onToggle?: () => void;
+  };
+
+  type SettingsSection = {
+    title: string;
+    items: SettingsItem[];
+  };
+
+  const sections: SettingsSection[] = [
     {
       title: 'Preferences',
       items: [
@@ -79,7 +93,7 @@ export default function SettingsScreen() {
   const renderSettingsItem = (
     item: {
       id: string;
-      icon: JSX.Element;
+      icon: React.ReactNode;
       title: string;
       type: 'switch' | 'link';
       value?: boolean;

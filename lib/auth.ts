@@ -1,5 +1,7 @@
 import { router } from 'expo-router';
 import { supabase } from './supabase';
+import { supabaseUrl } from './supabase';
+import { Platform } from 'react-native';
 
 // Types
 export type AuthError = {
@@ -28,29 +30,65 @@ export const signInWithEmail = async (email: string, password: string): Promise<
 
 export const uploadProfileImage = async (profileImageUri: string): Promise<string | null> => {
   try {
-    // Fetch the image as a blob
-    const response = await fetch(profileImageUri);
-    const blob = await response.blob();
+    let extension = profileImageUri.split('.').pop()?.toLowerCase() || 'jpg';
+    let mimeType = 'image/jpeg';
+    if (extension === 'png') mimeType = 'image/png';
+    if (extension === 'webp') mimeType = 'image/webp';
 
-    // Generate a unique filename
-    const fileName = `avatars/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
+    const bucket = 'avatars';
+    let publicUrl = '';
 
-    // Upload the blob to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from('avatars')
-      .upload(fileName, blob, {
-        contentType: 'image/jpeg',
-        upsert: true,
+    if (Platform.OS === 'web') {
+      // Web: usar SDK normalmente
+      const response = await fetch(profileImageUri);
+      const fileBlob = await response.blob();
+      const { error } = await supabase.storage
+        .from(bucket)
+        .upload(`avatars/${fileName}`, fileBlob, {
+          contentType: mimeType,
+          upsert: true,
+        });
+      if (error) {
+        console.error('Error de web:');
+        console.error('Error uploading image:', error.message);
+        return null;
+      }
+      const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(`avatars/${fileName}`);
+      publicUrl = publicUrlData.publicUrl;
+    } else {
+      // Mobile: usar fetch + FormData para upload direto
+      const formData = new FormData();
+      formData.append('file', {
+        uri: profileImageUri,
+        name: fileName,
+        type: mimeType,
+      } as any);
+
+      // Usa supabaseUrl do arquivo de configuração
+      const apiUrl = `${supabaseUrl}/storage/v1/object/${bucket}/avatars/${fileName}`;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: formData,
       });
 
-    if (error) {
-      console.error('Error uploading image:', error.message);
-      return null;
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error('Error uploading image:', errText);
+        return null;
+      }
+      // Monta a URL pública
+      const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(`avatars/${fileName}`);
+      publicUrl = publicUrlData.publicUrl;
     }
-
-    // Get the public URL of the uploaded image
-    const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-    return publicUrlData.publicUrl;
+    return publicUrl;
   } catch (error) {
     console.error('Error processing image upload:', error);
     return null;
@@ -61,11 +99,11 @@ export const uploadProfileImage = async (profileImageUri: string): Promise<strin
 export const signUpWithEmail = async (email: string, password: string, nickname: string, profileImageUri: string): Promise<AuthError | null> => {
   try {
     // Upload profile image and get public URL
-    const profileImageUrl = await uploadProfileImage(profileImageUri);
-
-    if (!profileImageUrl) {
-      return { message: 'Failed to upload profile image' };
+    let profileImageUrl = '';
+    if (profileImageUri) {
+      profileImageUrl = await uploadProfileImage(profileImageUri) || '';
     }
+
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -91,13 +129,6 @@ export const signUpWithEmail = async (email: string, password: string, nickname:
   } catch (error: any) {
     return { message: error.message || 'An unexpected error occurred' };
   }
-};
-
-export const base64ToBlob = (base64: string, contentType: string = ''): Blob => {
-  const byteCharacters = atob(base64.split(',')[1]);
-  const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
-  const byteArray = new Uint8Array(byteNumbers);
-  return new Blob([byteArray], { type: contentType });
 };
 
 // Reset password

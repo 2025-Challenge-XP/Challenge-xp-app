@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 // Your Supabase project URL and anon key
 // In production, these should be environment variables
 // For this demo, we're hardcoding them
-const supabaseUrl = 'https://oziwendirtmqquvqkree.supabase.co';
+export const supabaseUrl = 'https://oziwendirtmqquvqkree.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96aXdlbmRpcnRtcXF1dnFrcmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwOTA4MzksImV4cCI6MjA2MjY2NjgzOX0.PjysWhT8Y32PldsP3OsAefhiKfxjF8naRDhrrSddRVQ';
 
 // Custom storage implementation using expo-secure-store for native platforms
