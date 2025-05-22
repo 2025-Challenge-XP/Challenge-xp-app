@@ -30,47 +30,40 @@ export const signInWithEmail = async (email: string, password: string): Promise<
 
 export const uploadProfileImage = async (profileImageUri: string): Promise<string | null> => {
   try {
-    let extension = profileImageUri.split('.').pop()?.toLowerCase() || 'jpg';
-    let mimeType = 'image/jpeg';
-    if (extension === 'png') mimeType = 'image/png';
-    if (extension === 'webp') mimeType = 'image/webp';
-
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
-    const bucket = 'avatars';
-    let publicUrl = '';
-
     if (Platform.OS === 'web') {
-      // Web: usar SDK normalmente
+      // Web: usa o padrão sugerido pelo usuário
       const response = await fetch(profileImageUri);
-      const fileBlob = await response.blob();
-      const { error } = await supabase.storage
-        .from(bucket)
-        .upload(`avatars/${fileName}`, fileBlob, {
-          contentType: mimeType,
+      const blob = await response.blob();
+      const fileName = `avatars/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, blob, {
+          contentType: 'image/jpeg',
           upsert: true,
         });
       if (error) {
-        console.error('Error de web:');
         console.error('Error uploading image:', error.message);
         return null;
       }
-      const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(`avatars/${fileName}`);
-      publicUrl = publicUrlData.publicUrl;
+      const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      return publicUrlData.publicUrl;
     } else {
       // Mobile: usar fetch + FormData para upload direto
+      let extension = profileImageUri.split('.').pop()?.toLowerCase() || 'jpg';
+      let mimeType = 'image/jpeg';
+      if (extension === 'png') mimeType = 'image/png';
+      if (extension === 'webp') mimeType = 'image/webp';
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
+      const bucket = 'avatars';
       const formData = new FormData();
       formData.append('file', {
         uri: profileImageUri,
         name: fileName,
         type: mimeType,
       } as any);
-
-      // Usa supabaseUrl do arquivo de configuração
       const apiUrl = `${supabaseUrl}/storage/v1/object/${bucket}/avatars/${fileName}`;
-
       const { data: { session } } = await supabase.auth.getSession();
       const accessToken = session?.access_token;
-
       const res = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -78,17 +71,14 @@ export const uploadProfileImage = async (profileImageUri: string): Promise<strin
         },
         body: formData,
       });
-
       if (!res.ok) {
         const errText = await res.text();
         console.error('Error uploading image:', errText);
         return null;
       }
-      // Monta a URL pública
       const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(`avatars/${fileName}`);
-      publicUrl = publicUrlData.publicUrl;
+      return publicUrlData.publicUrl;
     }
-    return publicUrl;
   } catch (error) {
     console.error('Error processing image upload:', error);
     return null;
@@ -98,34 +88,45 @@ export const uploadProfileImage = async (profileImageUri: string): Promise<strin
 // Sign up with email and password
 export const signUpWithEmail = async (email: string, password: string, nickname: string, profileImageUri: string): Promise<AuthError | null> => {
   try {
-    // Upload profile image and get public URL
-    let profileImageUrl = '';
-    if (profileImageUri) {
-      profileImageUrl = await uploadProfileImage(profileImageUri) || '';
-    }
-
-
-    const { error } = await supabase.auth.signUp({
+    // 1. Cria o usuário
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           first_name: nickname,
-          avatar_url: profileImageUrl,
         },
       },
     });
-
-    if (error) {
-      return { message: error.message };
+    if (signUpError) {
+      return { message: signUpError.message };
     }
 
-    // In production, you might want to show a "Verification email sent" screen instead
-    // For now, we'll just sign the user in directly
-    console.log('Signing up with email:', email, 'and password:', password);
-    console.log('Nickname:', nickname);
-    console.log('Profile image:', profileImageUri);
-    return await signInWithEmail(email, password);
+    // 2. Faz login para garantir sessão válida
+    const signInError = await signInWithEmail(email, password);
+    if (signInError) {
+      return signInError;
+    }
+
+    // 3. Faz upload da imagem de perfil se existir
+    let profileImageUrl = '';
+    if (profileImageUri) {
+      profileImageUrl = await uploadProfileImage(profileImageUri) || '';
+    }
+
+    // 4. Atualiza o perfil do usuário com a URL da imagem
+    if (profileImageUrl) {
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          avatar_url: profileImageUrl,
+        },
+      });
+      if (updateError) {
+        return { message: updateError.message };
+      }
+    }
+
+    return null;
   } catch (error: any) {
     return { message: error.message || 'An unexpected error occurred' };
   }
