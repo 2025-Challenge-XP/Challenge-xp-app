@@ -5,16 +5,22 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Animated, // Adicionado
 } from 'react-native';
 import { useFormContext } from '../../contexts/FormContext';
 import { router } from 'expo-router';
 import { CreditCard as Edit2 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import FormButton from '../../components/FormButton';
+import LottieView from 'lottie-react-native';
+import { set } from 'zod';
 
 export default function SummaryScreen() {
   const { formState } = useFormContext();
   const { salvarDados } = useFormContext();
+
+  const [salvandoDados, setSalvandoDados] = React.useState(false);
+  const colorAnim = React.useRef(new Animated.Value(0)).current;
 
   const navigation = useNavigation();
 
@@ -91,6 +97,32 @@ export default function SummaryScreen() {
     // @ts-ignore
     navigation.navigate(`${section}`);
   };
+
+  const handleSalvar = () => {
+    if (salvarDados) salvarDados();
+    setSalvandoDados(true);
+    Animated.timing(colorAnim, {
+      toValue: 1,
+      duration: 400, // tempo da transição para verde
+      useNativeDriver: false,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(colorAnim, {
+          toValue: 0,
+          duration: 400, // tempo da transição de volta para azul
+          useNativeDriver: false,
+        }).start(() => setSalvandoDados(false));
+      }, 1200); // tempo que fica verde
+    });
+    setTimeout(() => {
+      navigateToSection('Home');    
+    }, 2000); // tempo para voltar para a tela inicial
+  };
+
+  const buttonBackgroundColor = colorAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#2563EB', '#86c772'], // azul para verde
+  });
 
   return (
     <ScrollView style={styles.container}>
@@ -386,13 +418,29 @@ export default function SummaryScreen() {
         </View>
       </View>
 
+      {/* Save Button */}
       <View style={styles.buttonContainer}>
-        <FormButton
-          title="Confirmar Dados"
-          onPress={() => {
-            if (salvarDados) salvarDados();
-          }}
-        />
+        <Animated.View style={[styles.button, { backgroundColor: buttonBackgroundColor }]}> 
+          <FormButton
+            title={salvandoDados ? '' : 'Confirmar Dados'}
+            onPress={handleSalvar}
+            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', elevation: 0 }}
+          >
+            {salvandoDados && (
+              <LottieView
+                source={require('../../assets/icons/SalveIcon.json')}
+                autoPlay
+                loop={false}
+                speed={0.5}
+                style={{ width: 32, height: 32 }}
+                colorFilters={[
+                  { keypath: 'Stroke 1', color: '#fff' },
+                  { keypath: 'Fill 1', color: '#fff' },
+                ]}
+              />
+            )}
+          </FormButton>
+        </Animated.View>
       </View>
     </ScrollView>
   );
@@ -403,7 +451,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-    buttonContainer: {
+  buttonContainer: {
     marginBottom: 16,
     marginHorizontal: 24,
   },
@@ -486,5 +534,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2563EB',
     fontWeight: '500',
+  },
+  button: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+
+  },
+  buttonSuccess: {
+    backgroundColor: '#c1e7d5', // verde
   },
 });

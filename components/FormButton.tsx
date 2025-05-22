@@ -1,14 +1,20 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, TouchableOpacityProps } from 'react-native';
 
-interface FormButtonProps extends TouchableOpacityProps {
+type FormButtonProps = {
   title: string;
+  onPress: () => void;
+  children?: React.ReactNode; // Adicione isso
   variant?: 'primary' | 'secondary' | 'outline';
   loading?: boolean;
-}
+  disabled?: boolean;
+  style?: any;
+};
 
 const FormButton: React.FC<FormButtonProps> = ({
   title,
+  onPress,
+  children,
   variant = 'primary',
   loading = false,
   disabled,
@@ -34,11 +40,13 @@ const FormButton: React.FC<FormButtonProps> = ({
 
   return (
     <TouchableOpacity
+      onPress={onPress}
       style={buttonStyles}
       disabled={disabled || loading}
       activeOpacity={0.8}
       {...props}
     >
+      {children}
       {loading ? (
         <ActivityIndicator
           size="small"
