@@ -48,9 +48,9 @@ export default function LoginScreen() {
         />
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
+          <Text style={styles.footerText}>Não possui uma conta? </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-            <Text style={styles.footerLink}>Sign up</Text>
+            <Text style={styles.footerLink}>Cadastre-se</Text>
           </TouchableOpacity>
         </View>
 
@@ -58,7 +58,7 @@ export default function LoginScreen() {
           style={styles.forgotPassword}
           onPress={() => router.push('/(auth)/reset-password')}
         >
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
         </TouchableOpacity>
       </Animated.View>
     </SafeAreaWrapper>

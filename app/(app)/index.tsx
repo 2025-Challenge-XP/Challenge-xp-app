@@ -72,6 +72,45 @@ export default function HomeScreen() {
     }
   ];
 
+  // Dados para o painel de investimentos
+  const investmentDashboardItems = [
+    { 
+      id: '1', 
+      title: 'Carteira', 
+      description: 'Acompanhe seus ativos', 
+      icon: <TrendingUp size={24} color={theme.colors.neutrals[700]} />,
+      color: '#F5F6FA',
+    },
+    { 
+      id: '2', 
+      title: 'Metas', 
+      description: 'Metas financeiras', 
+      icon: <Calendar size={24} color={theme.colors.neutrals[700]} />,
+      color: '#F5F6FA',
+    },
+    { 
+      id: '3', 
+      title: 'Rentabilidade', 
+      description: 'Seu desempenho', 
+      icon: <TrendingUp size={24} color={theme.colors.neutrals[700]} />,
+      color: '#F5F6FA',
+    },
+    { 
+      id: '4', 
+      title: 'Favoritos', 
+      description: 'Ações salvas', 
+      icon: <Heart size={24} color={theme.colors.neutrals[700]} />,
+      color: '#F5F6FA',
+    }
+  ];
+
+  // Atividades recentes de investimentos
+  const investmentActivities = [
+    { title: 'Compra de ações realizada', time: '1 hora atrás' },
+    { title: 'Meta de investimento atualizada', time: '3 horas atrás' },
+    { title: 'Dividendos recebidos', time: 'Ontem' }
+  ];
+
   return (
     <SafeAreaWrapper style={styles.container}>
       <ScrollView 
@@ -117,30 +156,30 @@ export default function HomeScreen() {
           entering={FadeInDown.delay(200).duration(600).springify()}
         >
           <Image 
-            source={{ uri: 'https://images.pexels.com/photos/3278215/pexels-photo-3278215.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' }}
+            source={{ uri: 'https://images.pexels.com/photos/669365/pexels-photo-669365.jpeg?auto=compress&cs=tinysrgb&w=800' }}
             style={styles.bannerImage}
           />
-          <View style={styles.bannerContent}>
-            <Text style={styles.bannerTitle}>Welcome to BoltApp</Text>
+          <View style={[styles.bannerContent, { backgroundColor: 'rgba(30, 41, 59, 0.25)' }] }>
+            <Text style={styles.bannerTitle}>InvestApp</Text>
             <Text style={styles.bannerDescription}>
-              Your personal dashboard is ready. Explore all features!
+              Painel de investimentos moderno e objetivo.
             </Text>
           </View>
         </Animated.View>
 
         <TouchableOpacity
-          style={styles.actionButton}
+          style={[styles.actionButton, { backgroundColor: '#3B4B5A' }]}
           // @ts-ignore
           onPress={() => navigation.navigate('FormPersonal')}
         >
-          <Text style={styles.actionButtonText}>Iniciar Questionário</Text>
-          <ArrowRight size={20} color="#FFFFFF" />
+          <Text style={[styles.actionButtonText, { color: '#F5F6FA', fontWeight: '500' }]}>Avaliação Financeira</Text>
+          <ArrowRight size={20} color="#F5F6FA" />
         </TouchableOpacity>
 
 
-        <Text style={styles.sectionTitle}>Dashboard</Text>
+        <Text style={styles.sectionTitle}>Painel de Investimentos</Text>
         <View style={styles.dashboardGrid}>
-          {dashboardItems.map((item, index) => (
+          {investmentDashboardItems.map((item, index) => (
             <Animated.View 
               key={item.id}
               entering={FadeInRight.delay(300 + index * 100).duration(400)}
@@ -153,9 +192,9 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
+        <Text style={styles.sectionTitle}>Atividades Recentes</Text>
         <View style={styles.activityList}>
-          {[1, 2, 3].map((_, index) => (
+          {investmentActivities.map((item, index) => (
             <Animated.View 
               key={index}
               style={styles.activityItem}
@@ -165,8 +204,8 @@ export default function HomeScreen() {
                 <CheckCheck size={18} color={theme.colors.primary[500]} />
               </View>
               <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Activity {index + 1}</Text>
-                <Text style={styles.activityTime}>2 hours ago</Text>
+                <Text style={styles.activityTitle}>{item.title}</Text>
+                <Text style={styles.activityTime}>{item.time}</Text>
               </View>
             </Animated.View>
           ))}
@@ -179,7 +218,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.neutrals[50],
+    backgroundColor: '#F8FAFC',
   },
   scrollView: {
     flex: 1,
@@ -204,19 +243,19 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: theme.borderRadius.round,
-    backgroundColor: theme.colors.white,
+    backgroundColor: '#F5F6FA',
     justifyContent: 'center',
     alignItems: 'center',
-    ...theme.shadows.small,
+    shadowColor: 'transparent',
   },
   iconButtonSearch: {
     width: 40,
     height: 40, 
     borderRadius: theme.borderRadius.round,
-    backgroundColor: theme.colors.white,
+    backgroundColor: '#F5F6FA',
     justifyContent: 'center',
     alignItems: 'center',
-    ...theme.shadows.small,
+    shadowColor: 'transparent',
   },
   greeting: {
     fontFamily: theme.typography.fontFamily.regular,
@@ -224,7 +263,7 @@ const styles = StyleSheet.create({
     color: theme.colors.neutrals[600],
   },
   username: {
-    fontFamily: theme.typography.fontFamily.bold,
+    fontFamily: theme.typography.fontFamily.medium,
     fontSize: theme.typography.fontSize.xl,
     color: theme.colors.neutrals[900],
   },
@@ -233,51 +272,48 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
     overflow: 'hidden',
     marginVertical: theme.spacing.md,
-    ...theme.shadows.medium,
+    shadowColor: 'transparent',
   },
   bannerImage: {
     width: '100%',
-    height: 150,
+    height: 120,
     position: 'absolute',
   },
-    actionButton: {
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#2563EB',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 10,
+    padding: 14,
     marginHorizontal: 24,
-    marginBottom: 32,
+    marginBottom: 28,
   },
-    actionButtonText: {
-    color: '#FFFFFF',
+  actionButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: theme.typography.fontFamily.medium,
     marginRight: 8,
   },
   bannerContent: {
     padding: theme.spacing.lg,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    height: 150,
+    height: 120,
     justifyContent: 'center',
   },
   bannerTitle: {
-    fontFamily: theme.typography.fontFamily.bold,
-    fontSize: theme.typography.fontSize.xl,
-    color: theme.colors.white,
+    fontFamily: theme.typography.fontFamily.medium,
+    fontSize: theme.typography.fontSize.lg,
+    color: theme.colors.neutrals[900],
     marginBottom: theme.spacing.xs,
   },
   bannerDescription: {
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.md,
-    color: theme.colors.white,
-    opacity: 0.9,
+    color: theme.colors.neutrals[700],
+    opacity: 0.85,
   },
   sectionTitle: {
-    fontFamily: theme.typography.fontFamily.bold,
+    fontFamily: theme.typography.fontFamily.medium,
     fontSize: theme.typography.fontSize.lg,
-    color: theme.colors.neutrals[900],
+    color: theme.colors.neutrals[800],
     marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
@@ -292,21 +328,22 @@ const styles = StyleSheet.create({
     width: '46%',
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
-    ...theme.shadows.small,
+    backgroundColor: '#F5F6FA',
+    shadowColor: 'transparent',
   },
   cardIcon: {
     marginBottom: theme.spacing.sm,
   },
   cardTitle: {
-    fontFamily: theme.typography.fontFamily.bold,
+    fontFamily: theme.typography.fontFamily.medium,
     fontSize: theme.typography.fontSize.md,
-    color: theme.colors.neutrals[900],
+    color: theme.colors.neutrals[800],
     marginBottom: theme.spacing.xs,
   },
   cardDescription: {
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.sm,
-    color: theme.colors.neutrals[700],
+    color: theme.colors.neutrals[600],
   },
   activityList: {
     paddingHorizontal: theme.spacing.lg,
@@ -315,16 +352,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: theme.spacing.md,
-    backgroundColor: theme.colors.white,
+    backgroundColor: '#F5F6FA',
     borderRadius: theme.borderRadius.md,
     marginBottom: theme.spacing.sm,
-    ...theme.shadows.small,
+    shadowColor: 'transparent',
   },
   activityIcon: {
     width: 36,
     height: 36,
     borderRadius: theme.borderRadius.round,
-    backgroundColor: theme.colors.primary[100],
+    backgroundColor: '#E5E7EB',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: theme.spacing.md,
@@ -333,9 +370,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   activityTitle: {
-    fontFamily: theme.typography.fontFamily.medium,
+    fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.md,
-    color: theme.colors.neutrals[900],
+    color: theme.colors.neutrals[800],
   },
   activityTime: {
     fontFamily: theme.typography.fontFamily.regular,

@@ -11,11 +11,12 @@ export const colors = {
     200: '#CCDDFF',
     300: '#99BBFF',
     400: '#6699FF',
-    500: '#0055FF', // Main Primary
+    500: '#2563EB', // Main Primary
     600: '#0044CC',
     700: '#003399',
     800: '#002266',
     900: '#001133',
+    "main": '#238CA4', // Main Primary for easy access
   },
   // Secondary/Accent Colors
   accent: {
@@ -28,6 +29,7 @@ export const colors = {
     700: '#483499',
     800: '#302366',
     900: '#181133',
+    "main": '#7856FF', // Main Accent for easy access
   },
   // Semantic Colors
   success: {
@@ -61,10 +63,39 @@ export const colors = {
     800: '#262626',
     900: '#171717',
   },
+  neutral: {
+    50: '#FAFAFA',
+    100: '#F5F5F5',
+    200: '#E5E5E5',
+    300: '#D4D4D4',
+    400: '#A3A3A3',
+    500: '#737373',
+    600: '#525252',
+    700: '#404040',
+    800: '#262626',
+    900: '#171717',
+  },
   // Basic
   white: '#FFFFFF',
   black: '#000000',
   transparent: 'transparent',
+    status: {
+    active: '#10B981',
+    inactive: '#6B7280',
+    error: '#EF4444',
+    warning: '#F59E0B'
+  },
+    background: {
+    default: '#F9FAFB',
+    paper: '#FFFFFF',
+    card: '#FFFFFF'
+  },
+    text: {
+    primary: '#1F2937',
+    secondary: '#4B5563',
+    disabled: '#9CA3AF',
+    hint: '#6B7280'
+  }
 };
 
 // Typography
@@ -86,6 +117,13 @@ export const typography = {
   lineHeight: {
     body: 1.5, // 150% of the font size
     heading: 1.2, // 120% of the font size
+    xs: 16,
+    sm: 20,
+    md: 24,
+    lg: 28,
+    xl: 32,
+    xxl: 36,
+    xxxl: 42
   },
 };
 
@@ -123,6 +161,27 @@ export const shadows = {
     elevation: 4,
   },
   large: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  sm: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  md: {
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  lg: {
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,

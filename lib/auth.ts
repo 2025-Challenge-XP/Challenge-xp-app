@@ -86,7 +86,9 @@ export const uploadProfileImage = async (profileImageUri: string): Promise<strin
 };
 
 // Sign up with email and password
-export const signUpWithEmail = async (email: string, password: string, nickname: string, profileImageUri: string): Promise<AuthError | null> => {
+export const signUpWithEmail = async (email: string, password: string, nickname: string, completeName: string, telephone: string, address: string, profileImageUri: string): Promise<AuthError | null> => {
+  console.log("imagem escolhida:", profileImageUri);
+  
   try {
     // 1. Cria o usuário
     const { error: signUpError } = await supabase.auth.signUp({
@@ -95,6 +97,9 @@ export const signUpWithEmail = async (email: string, password: string, nickname:
       options: {
         data: {
           first_name: nickname,
+          last_name: completeName,
+          telephone,
+          address,
         },
       },
     });
