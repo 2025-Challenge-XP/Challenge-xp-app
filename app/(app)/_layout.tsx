@@ -16,6 +16,7 @@ import Forminvestor from '@/app/(app)/form/investor';
 import FormPreferences from '@/app/(app)/form/preferences';
 import FormTerms from '@/app/(app)/form/terms';
 import FormSuccess from '@/app/(app)/form/success';
+import ChatScreen from '@/app/(app)/chat';
 
 
 
@@ -43,6 +44,9 @@ export default function AppLayout() {
         <Drawer.Screen name="Settings" component={SettingsScreen} />
         <Drawer.Screen name="Profile" component={ProfileScreen} />
         <Drawer.Screen name="Summary" component={SummaryScreen} />
+        <Drawer.Screen name="Chat" component={ChatScreen} />
+        
+        {/* Form screens hidden from the drawer */}
         <Drawer.Screen
           name="FormPersonal"
           component={FormPersonal}

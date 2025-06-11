@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Define the form state interface
 export interface FormState {
@@ -53,9 +53,6 @@ export interface FormState {
   termsAccepted: boolean;
   dataUseConsent: boolean;
 }
-
-
-
 
 // Initial state
 const initialState: FormState = {
@@ -151,8 +148,6 @@ interface FormContextType {
 
 }
 
-
-
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 // Provider component
@@ -196,6 +191,13 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
     if (error) {
       console.error('Erro ao salvar dados do usuário:', error);
       throw error;
+    }
+
+    // Salvar dados no AsyncStorage
+    try {
+      await AsyncStorage.setItem('user_form_data', JSON.stringify(formState));
+    } catch (e) {
+      console.error('Erro ao salvar dados no AsyncStorage:', e);
     }
   };
 
