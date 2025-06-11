@@ -27,11 +27,17 @@ export default function ProfileScreen() {
     // Busca o endereço do CEP apenas se ainda não buscou e se existe um CEP
     if (user?.user_metadata?.address && !cepData) {
       async function buscarCep(cep: string) {
+        // Obtenha o token do usuário autenticado
+        const session = supabase.auth.getSession
+          ? await supabase.auth.getSession()
+          : null;
+        const token = session?.data?.session?.access_token;
+
         const res = await fetch("https://oziwendirtmqquvqkree.supabase.co/functions/v1/CEP-Finder", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
-            "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96aXdlbmRpcnRtcXF1dnFrcmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwOTA4MzksImV4cCI6MjA2MjY2NjgzOX0.PjysWhT8Y32PldsP3OsAefhiKfxjF8naRDhrrSddRVQ`,
+            ...(token && { "Authorization": `Bearer ${token}` }),
           },
           body: JSON.stringify({ cep }),
         });
