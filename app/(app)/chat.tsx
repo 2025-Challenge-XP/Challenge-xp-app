@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, Image, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { SafeAreaWrapper } from '@/components/ui/SafeAreaWrapper';
 import { Header } from '@/components/ui/Header';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,54 +10,175 @@ import { AtSign, CreditCard as Edit2, Shield, Clock, User as UserIcon } from 'lu
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChatInput } from '../../components/ChatInput';
+import { startChat, sendMessage, Usuario } from '@/lib/gemini';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFormContext } from '../../contexts/FormContext';
+
+// Card para exibir dados financeiros
+function FinancialDataCard({ data }: { data: any }) {
+  return (
+    <View style={{
+      backgroundColor: theme.colors.white,
+      borderRadius: 14,
+      padding: 16,
+      marginVertical: 8,
+      shadowColor: '#000',
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
+      borderWidth: 1,
+      borderColor: theme.colors.neutrals[100],
+      minWidth: 220,
+      maxWidth: '80%',
+    }}>
+      <Text style={{ fontFamily: theme.typography.fontFamily.bold, fontSize: 18, color: theme.colors.primary[700], marginBottom: 2 }}>{data.titulo}</Text>
+      <Text style={{ color: theme.colors.neutrals[700], marginBottom: 6 }}>{data.descricao}</Text>
+      <Text style={{ fontSize: 22, fontFamily: theme.typography.fontFamily.bold, color: theme.colors.success[700], marginBottom: 2 }}>{data.valor}</Text>
+      <Text style={{
+        color:
+          typeof data.variacao_dia === 'string' && data.variacao_dia.startsWith('-')
+            ? theme.colors.error[700]
+            : theme.colors.success[700],
+        fontWeight: 'bold',
+        marginBottom: 2,
+      }}>
+        {data.variacao_dia ?? '--'}
+      </Text>
+      <Text style={{ color: theme.colors.neutrals[500], fontSize: 12 }}>Fonte: {data.fonte} | {data.data}</Text>
+    </View>
+  );
+}
 
 // Componente para exibir a lista de mensagens (deve ser implementado separadamente)
 const MessageList = ({ messages, userId }: { messages: any[]; userId: string }) => {
-  // Implemente a renderização das mensagens neste componente
   return (
     <View style={{ flex: 1 }}>
-      {/* Exemplo de renderização simples */}
-      {messages.map((msg, idx) => (
-        <View key={idx} style={{ alignItems: msg.userId === userId ? 'flex-end' : 'flex-start', marginVertical: 4 }}>
-          <View style={{ backgroundColor: msg.userId === userId ? theme.colors.primary[100] : theme.colors.neutrals[200], borderRadius: 12, padding: 8, maxWidth: '80%' }}>
-            <Text style={{ color: theme.colors.neutrals[900] }}>{msg.text}</Text>
+      {messages.map((msg, idx) => {
+        const isUser = msg.userId === userId;
+        // Se for mensagem do bot e tipo dado_financeiro, renderiza o card
+        if (msg.userId === 'bot' && msg.tipo === 'dado_financeiro') {
+          return (
+            <View key={idx} style={{ alignItems: 'flex-start', marginVertical: 4 }}>
+              <FinancialDataCard data={msg} />
+            </View>
+          );
+        }
+        // Mensagem comum
+        return (
+          <View key={idx} style={{ alignItems: isUser ? 'flex-end' : 'flex-start', marginVertical: 4 }}>
+            <View style={{ backgroundColor: isUser ? theme.colors.primary[100] : theme.colors.neutrals[200], borderRadius: 12, padding: 8, maxWidth: '80%' }}>
+              <Text style={{ color: theme.colors.neutrals[900] }}>{msg.text}</Text>
+            </View>
           </View>
-        </View>
-      ))}
+        );
+      })}
     </View>
   );
 };
 
 export default function ChatScreen() {
   const { user } = useAuth();
+  const { formState, recuperarDados } = useFormContext();
   const insets = useSafeAreaInsets();
-  const [messages, setMessages] = useState<any[]>([]); // Lista de mensagens
+  const [messages, setMessages] = useState<any[]>([
+    {
+      userId: 'bot',
+      text: 'Olá! Sou seu assistente financeiro. Como posso te ajudar hoje?'
+    }
+  ]); // Lista de mensagens
   const [loading, setLoading] = useState(false);
+  const [chatStarted, setChatStarted] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // Recupera dados do formulário ao abrir o chat
+  useEffect(() => {
+    if (recuperarDados) recuperarDados();
+  }, []);
 
   // Sempre rola para o final quando as mensagens mudam
   useEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   }, [messages]);
 
-  // Função para enviar mensagem do usuário e processar resposta do backend
+  // Sempre rola para o final quando o teclado aparece
+  useEffect(() => {
+    const keyboardListener = Keyboard.addListener('keyboardDidShow', () => {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    });
+    return () => keyboardListener.remove();
+  }, []);
+
+  // Função para montar o objeto Usuario a partir do formState
+  function usuarioFromFormState(): Usuario {
+    return {
+      fullName: formState.fullName || 'Usuário',
+      birthDate: formState.birthDate || '1990-01-01',
+      knowledgeLevel: formState.knowledgeLevel || 'iniciante',
+      riskTolerance: formState.riskTolerance || 'moderado',
+      objectives: {
+        realEstate: formState.objectives?.realEstate || false,
+        retirement: formState.objectives?.retirement || false,
+        shortTermProfit: formState.objectives?.shortTermProfit || false,
+        emergencyReserve: formState.objectives?.emergencyReserve || false,
+      },
+      assetInterests: {
+        crypto: formState.assetInterests?.crypto || false,
+        stocks: formState.assetInterests?.stocks || false,
+        fixedIncome: formState.assetInterests?.fixedIncome || false,
+        realEstateFunds: formState.assetInterests?.realEstateFunds || false,
+      },
+      monthlyIncome: formState.monthlyIncome || '',
+      investmentAmount: formState.investmentAmount || '',
+      liquidityPreference: formState.liquidityPreference || '',
+      monthlyContribution: {
+        amount: formState.monthlyContribution?.amount || '',
+        hasContribution: formState.monthlyContribution?.hasContribution || false,
+      },
+    };
+  }
+
+  // Função para enviar mensagem do usuário e processar resposta do Gemini via SDK
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
-    const userMessage = { userId: user?.id || 'me', text };
-    setMessages((msgs) => [...msgs, userMessage]);
     setLoading(true);
     try {
-      // Troque este fetch pela sua chamada real ao backend
-      const response = await fetch('https://seu-backend.com/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text }),
-      });
-      const data = await response.json();
-      const botMessage = { userId: 'bot', text: data.answer || 'Erro ao obter resposta.' };
-      setMessages((msgs) => [...msgs, botMessage]);
+      const usuario = usuarioFromFormState();
+      const localUserId = userId || usuario.fullName.replace(/\s+/g, "_").toLowerCase();
+      const userMessage = { userId: localUserId, text };
+      setMessages((msgs) => [...msgs, userMessage]);
+      // Inicia o chat se ainda não foi iniciado
+      if (!chatStarted) {
+        const result = await startChat(usuario);
+        setUserId(result.userId);
+        setChatStarted(true);
+      }
+      // Envia a mensagem para o Gemini
+      const resposta = await sendMessage(localUserId, text);
+      // A resposta já chega formatada como objeto JSON ou array de objetos
+      if (Array.isArray(resposta)) {
+        resposta.forEach((item) => {
+          if (item.tipo === 'dado_financeiro') {
+            setMessages((msgs) => [...msgs, { userId: 'bot', ...item }]);
+          } else {
+            setMessages((msgs) => [...msgs, { userId: 'bot', text: item.resposta || 'Erro ao obter resposta.' }]);
+          }
+        });
+      } else {
+        const respostaObj = resposta;
+        if (respostaObj.tipo === 'dado_financeiro') {
+          setMessages((msgs) => [...msgs, { userId: 'bot', ...respostaObj }]);
+        } else {
+          setMessages((msgs) => [...msgs, { userId: 'bot', text: respostaObj.resposta || 'Erro ao obter resposta.' }]);
+        }
+      }
     } catch (e) {
-      setMessages((msgs) => [...msgs, { userId: 'bot', text: 'Erro ao conectar ao servidor.' }]);
+      setMessages((msgs) => [...msgs, { userId: 'bot', text: 'Erro ao conectar ao Gemini ou recuperar dados.' }]);
     } finally {
       setLoading(false);
     }
@@ -76,7 +197,7 @@ export default function ChatScreen() {
           contentContainerStyle={{ flexGrow: 1, padding: theme.spacing.lg }}
           keyboardShouldPersistTaps="handled"
         >
-          <MessageList messages={messages} userId={user?.id || 'me'} />
+          <MessageList messages={messages} userId={userId || (formState.fullName || 'usuário').replace(/\s+/g, '_').toLowerCase()} />
         </ScrollView>
         <ChatInput loading={loading} onSend={handleSend} />
       </KeyboardAvoidingView>

@@ -58,8 +58,8 @@ export default function LoginScreen() {
             
           >
             <View style={styles.logoContainer}>
-              <Text style={[styles.logoText, { fontFamily: 'Sora_700Bold' }]}>Fique por dentro de possíveis áreas de risco</Text>
-              <Text style={[styles.logoSubText, { fontFamily: 'Sora_400Regular' }]}>Seja bem-vindo ao Alertaê, um sistema de monitoramento e prevenção de enchentes, com foco em garantir segurança mesmo durante quedas de energia.</Text>
+              <Text style={[styles.logoText, { fontFamily: 'Sora_700Bold' }]}>Gerencie suas finanças de forma simples e segura</Text>
+              <Text style={[styles.logoSubText, { fontFamily: 'Sora_400Regular' }]}>Bem-vindo ao Challenge XP App! Cadastre-se, acompanhe suas informações financeiras, preencha formulários personalizados e tenha controle total das suas finanças em um só lugar.</Text>
             </View>
             <TouchableOpacity
               style={styles.pillButton}
