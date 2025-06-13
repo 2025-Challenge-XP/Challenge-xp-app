@@ -113,10 +113,4 @@ Este projeto está sob a licença MIT.
 
 ---
 
-## 📬 Contato
-- Desenvolvedor: [Seu Nome](mailto:seuemail@exemplo.com)
-- LinkedIn: [Seu LinkedIn](https://www.linkedin.com/)
-
----
-
 > Feito com 💙 para o desafio XP.
