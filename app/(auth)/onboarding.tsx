@@ -11,7 +11,7 @@ import AppLoading from 'expo-app-loading';
 import { router } from 'expo-router';
 import { SafeAreaWrapper } from '@/components/ui/SafeAreaWrapper';
 import { theme } from '@/lib/theme';
-// Oculta warnings específicos do expo-notifications no Expo Go
+// Oculta warnings específicos do expo-Notifications no Expo Go
 import { LogBox } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -27,7 +27,7 @@ export default function LoginScreen() {
   }
   
   LogBox.ignoreLogs([
-  'expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go',
+  'expo-Notifications: Android Push Notifications (remote Notifications) functionality provided by expo-Notifications was removed from Expo Go',
 ]);
 
   return (
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     color: theme.colors.primary[500],
   },
   pillButton: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#3B4B5A',
     borderRadius: 8,
     height: 55,
     width: '100%',

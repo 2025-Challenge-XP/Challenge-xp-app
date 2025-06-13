@@ -29,7 +29,7 @@ export default function SuccessScreen() {
 
   const viewSummary = () => {
       // @ts-ignore
-      navigation.navigate('Summary');
+      navigation.navigate('Resumo');
   };
   return (
     <ScrollView style={styles.container}>

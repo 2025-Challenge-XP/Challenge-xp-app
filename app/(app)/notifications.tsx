@@ -6,7 +6,7 @@ import { Header } from '@/components/ui/Header';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 // Sample notification data
-const notifications = [
+const Notifications = [
   {
     id: '1',
     title: 'Depósito recebido',
@@ -38,7 +38,7 @@ const notifications = [
 ];
 
 export default function NotificationsScreen() {
-  const renderNotification = ({ item, index }: { item: typeof notifications[0], index: number }) => (
+  const renderNotification = ({ item, index }: { item: typeof Notifications[0], index: number }) => (
     <Animated.View 
       style={[styles.notificationItem, item.read && styles.readNotification]}
       entering={FadeInDown.delay(index * 100).duration(400)}
@@ -56,9 +56,9 @@ export default function NotificationsScreen() {
     <SafeAreaWrapper style={styles.container}>
      
       <View style={styles.content}>
-        {notifications.length > 0 ? (
+        {Notifications.length > 0 ? (
           <FlatList
-            data={notifications}
+            data={Notifications}
             renderItem={renderNotification}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
@@ -66,7 +66,7 @@ export default function NotificationsScreen() {
           />
         ) : (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No notifications yet</Text>
+            <Text style={styles.emptyText}>No Notifications yet</Text>
           </View>
         )}
       </View>

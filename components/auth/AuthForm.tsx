@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: theme.spacing.md,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#3B4B5A',
 
   },
   errorContainer: {

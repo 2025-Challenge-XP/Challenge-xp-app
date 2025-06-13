@@ -53,13 +53,6 @@ export default function LoginScreen() {
             <Text style={styles.footerLink}>Cadastre-se</Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={styles.forgotPassword}
-          onPress={() => router.push('/(auth)/reset-password')}
-        >
-          <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
-        </TouchableOpacity>
       </Animated.View>
     </SafeAreaWrapper>
   );

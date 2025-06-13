@@ -9,12 +9,11 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function SettingsScreen() {
   // Dummy state for switches
-  const [notifications, setNotifications] = React.useState(true);
+  const [Notifications, setNotifications] = React.useState(true);
   const [darkMode, setDarkMode] = React.useState(false);
 
   const handleLogout = async () => {
     await signOut();
-    // No need to navigate, signOut already handles this
   };
 
   // Settings sections
@@ -37,12 +36,12 @@ export default function SettingsScreen() {
       title: 'Preferences',
       items: [
         {
-          id: 'notifications',
+          id: 'Notifications',
           icon: <BellRing size={22} color={theme.colors.primary[500]} />,
           title: 'Notifications',
           type: 'switch',
-          value: notifications,
-          onToggle: () => setNotifications(!notifications),
+          value: Notifications,
+          onToggle: () => setNotifications(!Notifications),
         },
         {
           id: 'darkMode',
