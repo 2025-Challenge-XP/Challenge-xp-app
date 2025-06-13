@@ -70,7 +70,7 @@ export default function FinancialProfileForm() {
         return;
       }
       // @ts-ignore
-      navigation.navigate('forminvestor');
+      navigation.navigate('Forminvestor');
     }
   };
 
