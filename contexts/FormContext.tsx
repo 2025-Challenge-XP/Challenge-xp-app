@@ -145,6 +145,7 @@ interface FormContextType {
   resetForm: () => void;
   salvarDados?: () => void; // <-- Adicione aqui
   recuperarDados?: () => void; // <-- Adicione aqui
+  validaDuplicidadeCPF?: (cpf: string) => Promise<boolean>; // Placeholder for duplicate CPF validation
 
 }
 
@@ -201,15 +202,37 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const validaDuplicidadeCPF = async (cpf: string): Promise<boolean> => {
+    console.log('Validando CPF:', cpf);
+
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('dados, id')
+      .filter('dados->>documentId', 'eq', cpf);
+
+    if (error) {
+      console.error('Erro ao verificar CPF:', error);
+      return false; // Assume no duplicates if there's an error
+    }
+
+    // Verifica se o CPF encontrado pertence ao próprio usuário
+    const isOwnCPF = data.some((record) => record.id === user?.id);
+
+    return data.length === 0 || isOwnCPF; // Retorna true se não houver duplicatas ou se for o próprio usuário
+  };
+
   const recuperarDados = async () => {
     const { data, error } = await supabase
       .from('user_profiles')
       .select('dados')
       .eq('id', user?.id)
       .single();
+
     if (error) {
       console.log('Erro ao recuperar dados do usuário:', error);
+      resetForm(); // Limpa os campos caso ocorra erro
     }
+
     if (data) {
       dispatch({ type: 'UPDATE_FIELD', field: 'fullName', value: data.dados.fullName });
       dispatch({ type: 'UPDATE_FIELD', field: 'email', value: data.dados.email });
@@ -231,11 +254,13 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: 'UPDATE_FIELD', field: 'termsAccepted', value: data.dados.termsAccepted });
       dispatch({ type: 'UPDATE_FIELD', field: 'dataUseConsent', value: data.dados.dataUseConsent });
       console.log('Dados recuperados:', data.dados);
+    } else {
+      resetForm(); // Limpa os campos caso nenhum dado seja recuperado
     }
   };
 
   return (
-    <FormContext.Provider value={{ formState, updateField, updateNestedField, resetForm, salvarDados, recuperarDados }}>
+    <FormContext.Provider value={{ formState, updateField, updateNestedField, resetForm, salvarDados, recuperarDados, validaDuplicidadeCPF }}>
       {children}
     </FormContext.Provider>
   );
@@ -249,3 +274,4 @@ export function useFormContext() {
   }
   return context;
 }
+

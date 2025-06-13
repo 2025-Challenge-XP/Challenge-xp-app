@@ -2,11 +2,14 @@ import { router } from 'expo-router';
 import { supabase } from './supabase';
 import { supabaseUrl } from './supabase';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Types
 export type AuthError = {
   message: string;
 };
+
+
 
 // Sign in with email and password
 export const signInWithEmail = async (email: string, password: string): Promise<AuthError | null> => {
@@ -162,8 +165,7 @@ export const signOut = async (): Promise<AuthError | null> => {
     if (error) {
       return { message: error.message };
     }
-
-    // Redirect to the login screen
+    await limparAsyncStorage();
     router.replace('/(auth)/login');
     return null;
   } catch (error: any) {
@@ -174,4 +176,13 @@ export const signOut = async (): Promise<AuthError | null> => {
 // Get the current logged in user
 export const getCurrentUser = async () => {
   return (await supabase.auth.getSession()).data.session?.user || null;
+};
+
+export const limparAsyncStorage = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log('AsyncStorage limpo com sucesso!');
+  } catch (e) {
+    console.error('Erro ao limpar AsyncStorage:', e);
+  }
 };

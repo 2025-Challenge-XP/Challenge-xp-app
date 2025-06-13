@@ -8,12 +8,19 @@ import CheckboxOption from '../../../components/CheckboxOption';
 import InputField from '../../../components/InputField';
 import { useFormContext } from '../../../contexts/FormContext';
 import { useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 
+
+type PersonalInfoFormRouteParams = {
+  origin?: string;
+};
 
 export default function InvestorProfileForm() {
   const router = useRouter();
   const navigation = useNavigation();
   const { formState, updateField, updateNestedField } = useFormContext();
+  const route = useRoute<RouteProp<Record<string, PersonalInfoFormRouteParams>, string>>();
+  const { salvarDados } = useFormContext();
   
   const [errors, setErrors] = useState({
     knowledgeLevel: '',
@@ -72,6 +79,13 @@ export default function InvestorProfileForm() {
 
   const handleNext = () => {
     if (validate()) {
+      console.log('Formulário válido, prosseguindo...');
+      if (route.params && route.params.origin === 'summary') {
+        if (salvarDados) salvarDados();
+        // @ts-ignore
+        navigation.navigate('Resumo');
+        return;
+      }
       // @ts-ignore
       navigation.navigate('FormPreferences');
     }

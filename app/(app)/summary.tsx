@@ -95,7 +95,7 @@ export default function SummaryScreen() {
   // Helper function to navigate to edit sections
   const navigateToSection = (section: string) => {
     // @ts-ignore
-    navigation.navigate(`${section}`);
+    navigation.navigate(`${section}`, { origin: 'summary' });
   };
 
   const handleSalvar = () => {
@@ -131,11 +131,6 @@ export default function SummaryScreen() {
         <Text style={styles.subtitle}>
           Confira abaixo todas as informações do seu perfil de investidor e faça
           ajustes, se necessário.
-        </Text>
-
-        <Text style={styles.subtitle}>
-          Depois de revisar, clique no botão "Salvar" para confirmar suas
-          informações.
         </Text>
 
         {/* Personal Information Section */}
@@ -391,13 +386,6 @@ export default function SummaryScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Consentimentos</Text>
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => navigateToSection('FormTerms')}
-            >
-              <Edit2 size={16} color="#2563EB" />
-              <Text style={styles.editButtonText}>Editar</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={styles.card}>

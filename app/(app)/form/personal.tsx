@@ -7,13 +7,21 @@ import FormButton from '../../../components/FormButton';
 import { useFormContext } from '../../../contexts/FormContext';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRoute, RouteProp } from '@react-navigation/native';
 
+type PersonalInfoFormRouteParams = {
+  origin?: string;
+};
 
 export default function PersonalInfoForm() {
   const navigation = useNavigation();
   const router = useRouter();
-  const { formState, updateField } = useFormContext();
+  const { formState, updateField, validaDuplicidadeCPF } = useFormContext();
   const { user } = useAuth();
+  const route = useRoute<RouteProp<Record<string, PersonalInfoFormRouteParams>, string>>();
+  const { salvarDados } = useFormContext();
+  
+
   
   const [errors, setErrors] = useState({
     fullName: '',
@@ -30,6 +38,12 @@ export default function PersonalInfoForm() {
   const validateCPF = (cpf: string) => {
     const cpfClean = cpf.replace(/[^\d]/g, '');
     return cpfClean.length === 11;
+  };
+
+  const validarCPFExistente = async (cpf: string) => {
+    if (validaDuplicidadeCPF) {
+      return await validaDuplicidadeCPF(cpf);
+    }
   };
 
   const validarCPF = (cpf: string): boolean => {
@@ -136,7 +150,7 @@ export default function PersonalInfoForm() {
     updateField('birthDate', formattedText);
   };
 
-  const validate = () => {
+  const validate = async () => {
     const newErrors = {
       fullName: '',
       email: '',
@@ -168,6 +182,9 @@ export default function PersonalInfoForm() {
     } else if (!validarCPF(formState.documentId)) {
       newErrors.documentId = 'Digitos do CPF inválidos';
       isValid = false;
+    } else if (!(await validarCPFExistente(formState.documentId))) {
+      newErrors.documentId = 'CPF já cadastrado';
+      isValid = false;
     }
     
     if (!formState.birthDate.trim()) {
@@ -185,8 +202,15 @@ export default function PersonalInfoForm() {
     return isValid;
   };
 
-  const handleNext = () => {
-    if (validate()) {
+  const handleNext = async () => {
+    if (await validate()) {
+      console.log('Formulário válido, prosseguindo...');
+      if (route.params && route.params.origin === 'summary') {
+        if (salvarDados) salvarDados();
+        // @ts-ignore
+        navigation.navigate('Resumo');
+        return;
+      }
       // @ts-ignore
       navigation.navigate('FormFinancial');
     }

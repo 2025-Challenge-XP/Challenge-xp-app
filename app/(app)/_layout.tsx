@@ -13,10 +13,11 @@ import {
   Settings as SettingsIcon,
   User,
 } from 'lucide-react-native';
+import { FormProvider } from '@/contexts/FormContext';
 
 // Importando suas telas
 import HomeScreen from '@/app/(app)/index';
-import NotificationsScreen from '@/app/(app)/Notifications';
+import NotificationsScreen from '@/app/(app)/notifications';
 import SettingsScreen from '@/app/(app)/settings';
 import ProfileScreen from '@/app/(app)/profile';
 import SummaryScreen from '@/app/(app)/summary';
@@ -36,52 +37,72 @@ export default function AppLayout() {
   if (!session) return null;
 
   return (
+    <FormProvider>
       <Drawer.Navigator
         screenOptions={{
-        drawerActiveTintColor: theme.colors.primary[500],
-        drawerInactiveTintColor: theme.colors.neutrals[400],
-        drawerLabelStyle: {
-          fontFamily: theme.typography.fontFamily.medium,
-          fontSize: 14,
-        },
+          drawerActiveTintColor: theme.colors.primary[500],
+          drawerInactiveTintColor: theme.colors.neutrals[400],
+          drawerLabelStyle: {
+            fontFamily: theme.typography.fontFamily.medium,
+            fontSize: 14,
+          },
         }}
       >
         <Drawer.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          drawerIcon: ({ color, size }) => (
-            <HomeIcon color={color} size={size} />
+          name="Home"
+          component={HomeScreen}
+          options={{
+            drawerIcon: ({ color, size }) => (
+              <HomeIcon color={color} size={size} />
             ),
           }}
-          />
-          <Drawer.Screen name="Notificações" component={NotificationsScreen} options={{
+        />
+        <Drawer.Screen
+          name="Notificações"
+          component={NotificationsScreen}
+          options={{
             drawerIcon: ({ color, size }) => (
-            <Bell color={color} size={size} />
+              <Bell color={color} size={size} />
             ),
-          }} />
-          <Drawer.Screen name="Configurações" component={SettingsScreen} options={{
+          }}
+        />
+        <Drawer.Screen
+          name="Configurações"
+          component={SettingsScreen}
+          options={{
             drawerIcon: ({ color, size }) => (
-            <SettingsIcon color={color} size={size} />
+              <SettingsIcon color={color} size={size} />
             ),
-          }} />
-          <Drawer.Screen name="Perfil" component={ProfileScreen} options={{
+          }}
+        />
+        <Drawer.Screen
+          name="Perfil"
+          component={ProfileScreen}
+          options={{
             drawerIcon: ({ color, size }) => (
-            <User color={color} size={size} />
+              <User color={color} size={size} />
             ),
-          }} />
-          <Drawer.Screen name="Resumo" component={SummaryScreen} options={{
+          }}
+        />
+        <Drawer.Screen
+          name="Resumo"
+          component={SummaryScreen}
+          options={{
             drawerIcon: ({ color, size }) => (
-            <TrendingUp color={color} size={size} />
+              <TrendingUp color={color} size={size} />
             ),
-          }} />
-          <Drawer.Screen name="Chat" component={ChatScreen} options={{
+          }}
+        />
+        <Drawer.Screen
+          name="Chat"
+          component={ChatScreen}
+          options={{
             drawerIcon: ({ color, size }) => (
-            <BotMessageSquare color={color} size={size} />
+              <BotMessageSquare color={color} size={size} />
             ),
-          }} />
-          
-          {/* Form screens hidden from the drawer */}
+          }}
+        />
+       {/* Form screens hidden from the drawer */}
         <Drawer.Screen
         name="FormPersonal"
         component={FormPersonal}
@@ -114,5 +135,6 @@ export default function AppLayout() {
         />
 
       </Drawer.Navigator>
+    </FormProvider>
   );
 }

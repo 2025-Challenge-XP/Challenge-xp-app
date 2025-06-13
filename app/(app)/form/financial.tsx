@@ -6,12 +6,18 @@ import FormButton from '../../../components/FormButton';
 import CurrencyInput from '../../../components/CurrencyInput';
 import { useFormContext } from '../../../contexts/FormContext';
 import { useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 
+type PersonalInfoFormRouteParams = {
+  origin?: string;
+};
 
 export default function FinancialProfileForm() {
   const navigation = useNavigation();
   const router = useRouter();
   const { formState, updateField, updateNestedField } = useFormContext();
+  const route = useRoute<RouteProp<Record<string, PersonalInfoFormRouteParams>, string>>();
+  const { salvarDados } = useFormContext();
   
   const [errors, setErrors] = useState({
     monthlyIncome: '',
@@ -56,8 +62,15 @@ export default function FinancialProfileForm() {
 
   const handleNext = () => {
     if (validate()) {
+      console.log('Formulário válido, prosseguindo...');
+      if (route.params && route.params.origin === 'summary') {
+        if (salvarDados) salvarDados();
+        // @ts-ignore
+        navigation.navigate('Resumo');
+        return;
+      }
       // @ts-ignore
-      navigation.navigate('Forminvestor');
+      navigation.navigate('forminvestor');
     }
   };
 

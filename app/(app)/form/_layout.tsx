@@ -5,7 +5,6 @@ export default function FormLayout() {
   return (
     <FormProvider>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
         <Stack.Screen name="personal" />
         <Stack.Screen name="financial" />
         <Stack.Screen name="investor" />
