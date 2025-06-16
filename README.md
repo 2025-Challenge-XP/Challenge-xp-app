@@ -1,20 +1,72 @@
-# Challenge XP App
+# 🚀 Challenge XP App
 
-Aplicativo mobile desenvolvido com Expo/React Native para o desafio XP. O app permite cadastro, autenticação, preenchimento de formulários e visualização de informações financeiras, com integração ao Supabase.
+Bem-vindo ao **Challenge XP App**! Este é um super app mobile desenvolvido com Expo + React Native, focado em experiência de onboarding, perfil de investidor, chat com IA (Google Gemini), integração com Supabase, autenticação, formulários dinâmicos e muito mais. Tudo com uma interface moderna, responsiva e cheia de animações! 
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+## 📑 Tabela de Conteúdos
+- [Demonstração](#demonstração)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Estrutura de Pastas](#estrutura-de-pastas)
+- [Instalação e Execução](#instalação-e-execução)
+- [Build e Publicação](#build-e-publicação)
+- [Como Contribuir](#como-contribuir)
+- [Licença](#licença)
+- [Créditos](#créditos)
+
+---
+
+## 🎥 Demonstração
+
+> Adicione aqui prints ou GIFs do app em funcionamento!
+
+---
+
+## ✨ Funcionalidades
+- Autenticação de usuários (login, cadastro, onboarding)
+- Formulário completo de perfil de investidor (dados pessoais, financeiros, preferências, termos)
+- Chat inteligente com IA (Google Gemini) para dúvidas e recomendações
+- Dashboard com resumo do perfil e recomendações
+- Notificações, configurações e perfil do usuário
+- Animações modernas (Lottie, Reanimated)
+- Integração com Supabase para backend e autenticação
+- Busca e cards de ações/ativos
+- Interface responsiva e acessível
+
+---
+
+## 🛠️ Tecnologias Utilizadas
 - **React Native** (Expo)
 - **TypeScript**
-- **Supabase** (Backend as a Service)
-- **Context API** (Gerenciamento de estado)
-- **React Navigation**
-- **Componentização customizada**
+- **Expo Router**
+- **Supabase** (auth e dados)
+- **Google Gemini AI** (chat)
+- **React Hook Form** + Zod (validação)
+- **Lottie** (animações)
+- **Lucide Icons**
+- **AsyncStorage**
+- **Reanimated**
+- **Styled Components/Theme**
 
 ---
 
-## 📦 Instalação e Execução Local
+## 📁 Estrutura de Pastas
+```
+app/                # Rotas e telas principais
+  (app)/            # Telas autenticadas (dashboard, chat, resumo, etc)
+  (auth)/           # Telas de autenticação (login, cadastro, onboarding)
+  form/             # Etapas do formulário de perfil
+components/         # Componentes reutilizáveis (UI, Auth, etc)
+contexts/           # Contextos globais (Auth, Form)
+hooks/              # Hooks customizados
+lib/                # Integrações (auth, supabase, gemini, tema, validação)
+assets/             # Imagens, ícones, animações
+```
+
+---
+
+## ▶️ Instalação e Execução
 
 1. **Clone o repositório:**
    ```bash
@@ -24,93 +76,64 @@ Aplicativo mobile desenvolvido com Expo/React Native para o desafio XP. O app pe
 2. **Instale as dependências:**
    ```bash
    npm install
+   # ou
+   yarn
    ```
-3. **Inicie o projeto:**
+3. **Rode o app em modo desenvolvimento:**
    ```bash
-   npx expo start --tunnel -c
+   npm run dev
+   # ou
+   expo start
    ```
-   > O parâmetro `--tunnel` facilita o acesso em dispositivos físicos.
+4. **Abra no emulador ou Expo Go (Android/iOS)**
 
 ---
 
-## 🗂️ Estrutura do Projeto
-
-```
-├── app/                # Rotas e telas principais
-│   ├── (app)/          # Telas autenticadas
-│   ├── (auth)/         # Telas de autenticação
-│   └── form/           # Etapas do formulário
-├── components/         # Componentes reutilizáveis
-│   ├── ui/             # Componentes de UI (Button, Header, etc)
-│   └── auth/           # Componentes de autenticação
-├── contexts/           # Contextos globais (Auth, Form)
-├── hooks/              # Custom hooks
-├── lib/                # Integrações (supabase, auth, tema, validação)
-├── assets/             # Imagens e ícones
-├── metro.config.js     # Configuração do Metro bundler
-├── app.json            # Configuração do Expo
-├── tsconfig.json       # Configuração do TypeScript
-└── ...
-```
-
----
-
-## 🔑 Configuração do Supabase
-
-1. Crie um projeto no [Supabase](https://supabase.com/).
-2. Copie a URL e a chave anônima do projeto.
-3. Crie um arquivo `.env` na raiz do projeto:
-   ```env
-   SUPABASE_URL=coloque_aqui_sua_url
-   SUPABASE_ANON_KEY=coloque_aqui_sua_chave
-   ```
-4. Certifique-se de que o arquivo `lib/supabase.ts` está lendo essas variáveis.
-
----
-
-## 🧩 Principais Funcionalidades
-- Autenticação de usuários (login, registro, recuperação de senha)
-- Formulário multi-etapas (dados pessoais, financeiros, preferências, etc)
-- Visualização de resumo e perfil
-- Pesquisa e exibição de ações
-- UI responsiva e moderna
-
----
-
-## 🛠️ Dicas para Desenvolvimento
-- Use `npx expo start --tunnel -c` para evitar problemas de rede.
-- Se ocorrer erro relacionado ao Supabase, confira o arquivo `metro.config.js`:
-  ```js
-  // metro.config.js
-  const { getDefaultConfig } = require('expo/metro-config');
-  const config = getDefaultConfig(__dirname);
-  config.resolver.unstable_enablePackageExports = false;
-  module.exports = config;
+## 🏗️ Build e Publicação
+- **Web:**
+  ```bash
+  npm run build:web
   ```
-- Para adicionar novas telas, crie arquivos em `app/(app)/` ou `app/(auth)/` e registre as rotas.
-- Componentes reutilizáveis ficam em `components/ui/`.
+- **Android:**
+  ```bash
+  npm run android
+  ```
+- **iOS:**
+  ```bash
+  npm run ios
+  ```
 
----
-
-## 🐞 Troubleshooting
-- **Erro de dependências:** Rode `npm install` novamente.
-- **Problemas com o Supabase:** Verifique as variáveis de ambiente e a configuração do Metro.
-- **Problemas de navegação:** Confira se as rotas estão corretamente exportadas.
+Veja a [documentação do Expo](https://docs.expo.dev/) para detalhes de build e publicação.
 
 ---
 
 ## 🤝 Como Contribuir
 1. Faça um fork do projeto
 2. Crie uma branch: `git checkout -b minha-feature`
-3. Commit suas alterações: `git commit -m 'feat: minha nova feature'`
-4. Push para o fork: `git push origin minha-feature`
+3. Commit suas alterações: `git commit -m 'feat: minha feature'`
+4. Push na branch: `git push origin minha-feature`
 5. Abra um Pull Request
 
 ---
 
 ## 📄 Licença
-Este projeto está sob a licença MIT.
+
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
 
 ---
 
-> Feito com 💙 para o desafio XP.
+## 🤺Integrantes
+- Rm99667 Victor Aranda
+- Rm98690 Julia Lins
+- Rm99210 Luis Barreto
+- Rm99148 André Lambert
+- Rm99750 Felipe Cortez
+
+## 👨‍💻 Créditos
+- Feito com 💚 por [Seu Nome ou Squad]
+- Design, código e ideias originais
+- Powered by [Supabase](https://supabase.com/), [Expo](https://expo.dev/), [Google Gemini](https://ai.google.dev/)
+
+---
+
+> Dúvidas? Sugestões? Abra uma issue ou mande um PR!
