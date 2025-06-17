@@ -21,6 +21,8 @@ export interface Usuario {
     retirement?: boolean;
     shortTermProfit?: boolean;
     emergencyReserve?: boolean;
+    other?: boolean;        // <-- Adicione esta linha
+    otherText?: string;     // <-- Adicione esta linha
   };
   assetInterests: {
     crypto?: boolean;

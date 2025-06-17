@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { StyleSheet, View, Text, Image, ScrollView, KeyboardAvoidingView, Platform, Keyboard, FlatList } from 'react-native';
 import { SafeAreaWrapper } from '@/components/ui/SafeAreaWrapper';
 import { Header } from '@/components/ui/Header';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { theme } from '@/lib/theme';
 import { Button } from '@/components/ui/Button';
-import { AtSign, CreditCard as Edit2, Shield, Clock, User as UserIcon } from 'lucide-react-native';
+import { AtSign, CreditCard as Edit2, Shield, Clock, User as UserIcon, TrendingUp, Layers, Droplet, Target } from 'lucide-react-native';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChatInput } from '../../components/ChatInput';
@@ -83,6 +83,110 @@ const MessageList = ({ messages, userId }: { messages: any[]; userId: string }) 
   );
 };
 
+// Card de perfil do usuário com ícone e visual mais próximo do sumário
+function UserProfileCard({ label, value, icon, isObjetivos, objetivosList }: { label: string; value?: string; icon: React.ReactNode; isObjetivos?: boolean; objetivosList?: string[] }) {
+  // Se for objetivos, divide em duas linhas horizontais
+  if (isObjetivos && objetivosList) {
+    const half = Math.ceil(objetivosList.length / 2);
+    const firstRow = objetivosList.slice(0, half);
+    const secondRow = objetivosList.slice(half);
+
+    return (
+      <View style={styles.profileCardObjetivos}>
+        <View style={styles.profileCardIcon}>{icon}</View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.profileCardLabel}>{label}</Text>
+          <View style={styles.objectivesRows}>
+            <View style={styles.objectivesRow}>
+              {firstRow.map((obj, idx) => (
+                <View key={idx} style={styles.objectiveItem}>
+                  <Text style={styles.objectiveText}>{obj}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={styles.objectivesRow}>
+              {secondRow.map((obj, idx) => (
+                <View key={idx} style={styles.objectiveItem}>
+                  <Text style={styles.objectiveText}>{obj}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Caso não seja objetivos, mantém o card padrão
+  return (
+    <View style={styles.profileCard}>
+      <View style={styles.profileCardIcon}>{icon}</View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.profileCardLabel}>{label}</Text>
+        <Text style={styles.profileCardValue}>{value}</Text>
+      </View>
+    </View>
+  );
+}
+
+// Carrossel de cards de perfil (apenas informações importantes)
+function UserProfileCarousel({ usuario }: { usuario: Usuario }) {
+  const cards = [];
+  // Interesses
+  const interessesArr = Object.entries(usuario.assetInterests || {}).filter(([_, v]) => v).map(([k]) => {
+    switch (k) {
+      case 'crypto': return 'Criptoativos';
+      case 'stocks': return 'Ações';
+      case 'fixedIncome': return 'Renda Fixa';
+      case 'realEstateFunds': return 'Fundos Imobiliários';
+      default: return k;
+    }
+  });
+  if (interessesArr.length)
+    cards.push({ label: 'Interesses', value: interessesArr.join(', '), icon: <TrendingUp color={theme.colors.primary[600]} size={28} /> });
+  // Nível de conhecimento
+  if (usuario.knowledgeLevel)
+    cards.push({ label: 'Nível de Conhecimento', value: usuario.knowledgeLevel.charAt(0).toUpperCase() + usuario.knowledgeLevel.slice(1), icon: <Layers color={theme.colors.primary[600]} size={28} /> });
+  // Perfil de risco
+  if (usuario.riskTolerance)
+    cards.push({ label: 'Perfil de Risco', value: usuario.riskTolerance.charAt(0).toUpperCase() + usuario.riskTolerance.slice(1), icon: <Shield color={theme.colors.primary[600]} size={28} /> });
+  // Liquidez
+  if (usuario.liquidityPreference)
+    cards.push({ label: 'Liquidez', value: usuario.liquidityPreference.charAt(0).toUpperCase() + usuario.liquidityPreference.slice(1), icon: <Droplet color={theme.colors.primary[600]} size={28} /> });
+  // Objetivos
+  const objetivosArr: string[] = [];
+  if (usuario.objectives?.emergencyReserve) objetivosArr.push('Reserva de emergência');
+  if (usuario.objectives?.retirement) objetivosArr.push('Aposentadoria');
+  if (usuario.objectives?.realEstate) objetivosArr.push('Compra de imóvel');
+  if (usuario.objectives?.shortTermProfit) objetivosArr.push('Lucro no curto prazo');
+  // Aqui está o ajuste para "Outros"
+  if (
+    usuario.objectives &&
+    usuario.objectives.other &&
+    typeof usuario.objectives.otherText === 'string' &&
+    usuario.objectives.otherText.trim() !== ''
+  ) {
+    objetivosArr.push(usuario.objectives.otherText.trim());
+  }
+  if (objetivosArr.length)
+    cards.push({ label: 'Objetivos', isObjetivos: true, objetivosList: objetivosArr, icon: <Target color={theme.colors.primary[600]} size={28} /> });
+
+  if (cards.length === 0) return null;
+
+  return (
+    <View style={{ marginBottom: 18 }}>
+      <FlatList
+        data={cards}
+        keyExtractor={(_, idx) => idx.toString()}
+        renderItem={({ item }) => <UserProfileCard {...item} />}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingVertical: 4, paddingHorizontal: 2 }}
+      />
+    </View>
+  );
+}
+
 export default function ChatScreen() {
   const { user } = useAuth();
   const { formState, recuperarDados } = useFormContext();
@@ -132,6 +236,8 @@ export default function ChatScreen() {
         retirement: formState.objectives?.retirement || false,
         shortTermProfit: formState.objectives?.shortTermProfit || false,
         emergencyReserve: formState.objectives?.emergencyReserve || false,
+        other: formState.objectives?.other || false,           // <-- Adicione esta linha
+        otherText: formState.objectives?.otherText || '',      // <-- Adicione esta linha
       },
       assetInterests: {
         crypto: formState.assetInterests?.crypto || false,
@@ -214,9 +320,11 @@ export default function ChatScreen() {
         <ScrollView
           ref={scrollViewRef}
           style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1, padding: theme.spacing.lg }}
+          contentContainerStyle={{ flexGrow: 1, padding: theme.spacing.lg, paddingTop: theme.spacing.md }}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Carrossel de perfil do usuário */}
+          <UserProfileCarousel usuario={usuarioFromFormState()} />
           <MessageList messages={messages} userId={userId || (formState.fullName || 'usuário').replace(/\s+/g, '_').toLowerCase()} />
         </ScrollView>
         <ChatInput loading={loading} onSend={handleSend} />
@@ -325,5 +433,87 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fontFamily.medium,
     fontSize: theme.typography.fontSize.md,
     color: theme.colors.neutrals[900],
+  },
+  profileCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 22,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+    minWidth: 230,      // <-- Reduzido
+    maxWidth: 260,      // <-- Reduzido
+    height: 80,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: theme.colors.neutrals[100],
+  },
+  // Novo estilo para o card de objetivos
+  profileCardObjetivos: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 22,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginRight: 16,
+    minWidth: 360,
+    maxWidth: 700, 
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: theme.colors.neutrals[100],
+  },
+  profileCardIcon: {
+    marginRight: 18,
+    backgroundColor: theme.colors.primary[100],
+    borderRadius: 10,
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  profileCardLabel: {
+    fontSize: 14,
+    color: theme.colors.neutrals[500],
+    fontFamily: theme.typography.fontFamily.medium,
+    marginBottom: 2,
+  },
+  profileCardValue: {
+    fontSize: 16,
+    color: theme.colors.primary[700],
+    fontFamily: theme.typography.fontFamily.bold,
+  },
+  // Novos estilos para as linhas de objetivos
+  objectivesRows: {
+    flexDirection: 'column',
+    width: '100%',
+  },
+  objectivesRow: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    marginBottom: 2,
+  },
+  objectiveItem: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginRight: 6,
+    marginBottom: 0,
+    marginTop: 2,
+    maxWidth: 120,
+  },
+  objectiveText: {
+    fontSize: 11,
+    color: '#2563EB',
   },
 });

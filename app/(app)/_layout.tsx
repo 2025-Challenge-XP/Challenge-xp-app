@@ -58,12 +58,36 @@ export default function AppLayout() {
           }}
         />
         <Drawer.Screen
+          name="Resumo"
+          component={SummaryScreen}
+          options={{
+            drawerIcon: ({ color, size }) => (
+              <TrendingUp color={color} size={size} />
+            ),
+          }}
+        />
+
+        <Drawer.Screen
+          name="Chat"
+          component={ChatScreen}
+          options={{
+            drawerIcon: ({ color, size }) => (
+              <BotMessageSquare color={color} size={size} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="Perfil"
+          component={ProfileScreen}
+          options={{
+            drawerIcon: ({ color, size }) => <User color={color} size={size} />,
+          }}
+        />
+        <Drawer.Screen
           name="Notificações"
           component={NotificationsScreen}
           options={{
-            drawerIcon: ({ color, size }) => (
-              <Bell color={color} size={size} />
-            ),
+            drawerIcon: ({ color, size }) => <Bell color={color} size={size} />,
           }}
         />
         <Drawer.Screen
@@ -75,65 +99,38 @@ export default function AppLayout() {
             ),
           }}
         />
-        <Drawer.Screen
-          name="Perfil"
-          component={ProfileScreen}
-          options={{
-            drawerIcon: ({ color, size }) => (
-              <User color={color} size={size} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="Resumo"
-          component={SummaryScreen}
-          options={{
-            drawerIcon: ({ color, size }) => (
-              <TrendingUp color={color} size={size} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="Chat"
-          component={ChatScreen}
-          options={{
-            drawerIcon: ({ color, size }) => (
-              <BotMessageSquare color={color} size={size} />
-            ),
-          }}
-        />
-       {/* Form screens hidden from the drawer */}
-        <Drawer.Screen
-        name="FormPersonal"
-        component={FormPersonal}
-        options={{ drawerItemStyle: { display: 'none' } }}
-        />
-        <Drawer.Screen
-        name="FormFinancial"
-        component={FormFinancial}
-        options={{ drawerItemStyle: { display: 'none' } }}
-        />
-        <Drawer.Screen
-        name="Forminvestor"
-        component={Forminvestor}
-        options={{ drawerItemStyle: { display: 'none' } }}
-        />
-        <Drawer.Screen
-        name="FormPreferences"
-        component={FormPreferences}
-        options={{ drawerItemStyle: { display: 'none' } }}
-        />
-        <Drawer.Screen
-        name="FormTerms"
-        component={FormTerms}
-        options={{ drawerItemStyle: { display: 'none' } }}
-        />
-        <Drawer.Screen
-        name="FormSuccess"
-        component={FormSuccess}
-        options={{ drawerItemStyle: { display: 'none' } }}
-        />
 
+        {/* Form screens hidden from the drawer */}
+        <Drawer.Screen
+          name="FormPersonal"
+          component={FormPersonal}
+          options={{ drawerItemStyle: { display: 'none' } }}
+        />
+        <Drawer.Screen
+          name="FormFinancial"
+          component={FormFinancial}
+          options={{ drawerItemStyle: { display: 'none' } }}
+        />
+        <Drawer.Screen
+          name="Forminvestor"
+          component={Forminvestor}
+          options={{ drawerItemStyle: { display: 'none' } }}
+        />
+        <Drawer.Screen
+          name="FormPreferences"
+          component={FormPreferences}
+          options={{ drawerItemStyle: { display: 'none' } }}
+        />
+        <Drawer.Screen
+          name="FormTerms"
+          component={FormTerms}
+          options={{ drawerItemStyle: { display: 'none' } }}
+        />
+        <Drawer.Screen
+          name="FormSuccess"
+          component={FormSuccess}
+          options={{ drawerItemStyle: { display: 'none' } }}
+        />
       </Drawer.Navigator>
     </FormProvider>
   );
