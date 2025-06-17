@@ -98,15 +98,15 @@ Comportamento:
 
 Formatação:
 
-1. Para mensagens comuns, envie um JSON assim:
+1. Para mensagens comuns de respostas objetivas e curtas, envie um JSON assim, usando obrigatoriamente Markdown no campo resposta tornando todas as mensagens agradáveis e bonitas:
 {
   "tipo": "mensagem",
-  "resposta": "Sugiro considerar fundos de ações voltados para energia limpa."
+  "resposta": "Sugiro considerar **fundos de ações** voltados para _energia limpa_.\n\n- Opção 1: Fundo A\n- Opção 2: Fundo B"
 }
 
-Para dados financeiros como cotação de ações pesquise na B3 e envie um JSON assim:
-no titulo eu quero symbulo internacional da ação, por exemplo PETR4.SA ou IBMB34.SA ou BBDC4.SA assim por diante 
-se for pedido mais de uma acao envie em um array de objetos
+Para dados financeiros como cotação de ações pesquise e envie um JSON assim:
+no titulo eu quero symbulo internacional da ação, por exemplo PETR4.SA ou IBMB34.SA ou BBDC4.SA ou AMZN assim por diante 
+se for pedido mais de uma acao envie em um array de objetos obrigatoriamente com o seguinte formato:
 {
   "tipo": "dado_financeiro",
   "titulo": "Petrobras", 
@@ -153,21 +153,33 @@ const model: GenerativeModel = genAI.getGenerativeModel({
 // Função para buscar cotação real na Alpha Vantage
 async function fetchStockQuote(symbol: string) {
   const apiKey = "K4WTACFV34B65UT9";
-  const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    const quote = data["Global Quote"];
-    if (!quote) return null;
-    return {
-      codigo: quote["01. symbol"],
-      valor: `R$ ${Number(quote["05. price"]).toFixed(2)}`,
-      variacao_dia: quote["10. change percent"],
-      data: quote["07. latest trading day"]
-    };
-  } catch {
-    return null;
-  }
+
+  // Cotação
+  const quoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
+  const quoteResponse = await fetch(quoteUrl);
+  const quoteData = await quoteResponse.json();
+  const globalQuote = quoteData["Global Quote"];
+  if (!globalQuote) return null;
+
+  // Moeda
+  const currencyUrl = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${symbol}&apikey=${apiKey}`;
+  const currencyResponse = await fetch(currencyUrl);
+  const currencyData = await currencyResponse.json();
+  const bestMatch = currencyData.bestMatches?.[0];
+  const currency = bestMatch ? bestMatch['8. currency'] : "BRL";
+
+  // Formatação do valor
+  let valor = Number(globalQuote["05. price"]).toFixed(2);
+  if (currency === "USD") valor = `US$ ${valor}`;
+  else if (currency === "BRL") valor = `R$ ${valor}`;
+  else valor = `${currency} ${valor}`;
+
+  return {
+    codigo: globalQuote["01. symbol"],
+    valor,
+    variacao_dia: globalQuote["10. change percent"],
+    data: globalQuote["07. latest trading day"]
+  };
 }
 
 export async function sendMessage(userId: string, mensagem: string) {

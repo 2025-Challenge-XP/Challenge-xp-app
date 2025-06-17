@@ -13,6 +13,8 @@ import { ChatInput } from '../../components/ChatInput';
 import { startChat, sendMessage, Usuario } from '@/lib/gemini';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFormContext } from '../../contexts/FormContext';
+import Markdown from 'react-native-markdown-display';
+
 
 // Card para exibir dados financeiros
 function FinancialDataCard({ data }: { data: any }) {
@@ -66,9 +68,13 @@ const MessageList = ({ messages, userId }: { messages: any[]; userId: string }) 
         }
         // Mensagem comum
         return (
-          <View key={idx} style={{ alignItems: isUser ? 'flex-end' : 'flex-start', marginVertical: 4 }}>
-            <View style={{ backgroundColor: isUser ? theme.colors.primary[100] : theme.colors.neutrals[200], borderRadius: 12, padding: 8, maxWidth: '80%' }}>
-              <Text style={{ color: theme.colors.neutrals[900] }}>{msg.text}</Text>
+          <View key={idx} style={{ alignItems: isUser ? 'flex-end' : 'flex-start', marginVertical: 8 }}>
+            <View style={{ backgroundColor: isUser ? theme.colors.primary[100] : theme.colors.neutrals[200], borderRadius: 12, padding: 8, maxWidth: '90%' }}>
+              {msg.userId === 'bot' ? (
+                <Markdown>{msg.text}</Markdown>
+              ) : (
+                <Text style={{ color: theme.colors.neutrals[900] }}>{msg.text}</Text>
+              )}
             </View>
           </View>
         );
@@ -166,7 +172,7 @@ export default function ChatScreen() {
           if (item.tipo === 'dado_financeiro') {
             setMessages((msgs) => [...msgs, { userId: 'bot', ...item }]);
           } else {
-            setMessages((msgs) => [...msgs, { userId: 'bot', text: item.resposta || 'Erro ao obter resposta.' }]);
+            setMessages((msgs) => [...msgs, { userId: 'bot', text: item.resposta || item.text || 'Erro ao obter resposta.' }]);
           }
         });
       } else {
@@ -174,7 +180,21 @@ export default function ChatScreen() {
         if (respostaObj.tipo === 'dado_financeiro') {
           setMessages((msgs) => [...msgs, { userId: 'bot', ...respostaObj }]);
         } else {
-          setMessages((msgs) => [...msgs, { userId: 'bot', text: respostaObj.resposta || 'Erro ao obter resposta.' }]);
+          // Garante que respostaObj.resposta seja string
+          let texto = respostaObj.resposta || respostaObj.text || 'Erro ao obter resposta.';
+          if (typeof texto !== 'string') {
+            try {
+              texto = JSON.stringify(texto, null, 2);
+            } catch {
+              texto = 'Erro ao processar resposta do assistente.';
+            }
+          }
+          // Remove aspas duplas extras e quebras de linha do início/fim, mesmo com espaços/quebras de linha
+          if (typeof texto === 'string') {
+            texto = texto.trim();
+            texto = texto.replace(/^["\s\n]+|["\s\n]+$/g, '');
+          }
+          setMessages((msgs) => [...msgs, { userId: 'bot', text: texto }]);
         }
       }
     } catch (e) {
