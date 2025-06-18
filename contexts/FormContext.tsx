@@ -254,6 +254,12 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: 'UPDATE_FIELD', field: 'termsAccepted', value: data.dados.termsAccepted });
       dispatch({ type: 'UPDATE_FIELD', field: 'dataUseConsent', value: data.dados.dataUseConsent });
       console.log('Dados recuperados:', data.dados);
+          // Salvar dados no AsyncStorage
+    try {
+      await AsyncStorage.setItem('user_form_data', JSON.stringify(formState));
+    } catch (e) {
+      console.error('Erro ao salvar dados no AsyncStorage:', e);
+    }
     } else {
       resetForm(); // Limpa os campos caso nenhum dado seja recuperado
     }
