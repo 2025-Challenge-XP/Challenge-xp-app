@@ -160,7 +160,7 @@ export default function HomeScreen() {
         >
           <Image
             source={{
-              uri: 'https://images.pexels.com/photos/669365/pexels-photo-669365.jpeg?auto=compress&cs=tinysrgb&w=800',
+              uri: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=compress&fit=crop&w=800&q=80',
             }}
             style={styles.bannerImage}
           />
@@ -315,15 +315,14 @@ const styles = StyleSheet.create({
   },
   bannerTitle: {
     fontFamily: theme.typography.fontFamily.medium,
-    fontSize: theme.typography.fontSize.lg,
-    color: theme.colors.neutrals[900],
+    fontSize: theme.typography.fontSize.xxl,
+    color: theme.colors.white,
     marginBottom: theme.spacing.xs,
   },
   bannerDescription: {
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.md,
-    color: theme.colors.neutrals[700],
-    opacity: 0.85,
+    color: theme.colors.white,
   },
   sectionTitle: {
     fontFamily: theme.typography.fontFamily.medium,
