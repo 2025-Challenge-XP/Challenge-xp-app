@@ -16,10 +16,15 @@ Bem-vindo ao **Challenge XP App**! Este é um super app mobile desenvolvido com 
 - [Créditos](#créditos)
 
 ---
+# 📌 Usuário de Teste
+
+Este repositório conta com um usuário de teste já configurado para facilitar a demonstração da aplicação.  
 
 ## 🎥 Demonstração
 
-> Adicione aqui prints ou GIFs do app em funcionamento!
+> **Usuário para teste**  
+📧 **Email:** `Professor@gmail.com`  
+🔑 **Senha:** `SenhaForte12345`  
 
 ---
 
@@ -130,7 +135,6 @@ Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes
 - Rm99750 Felipe Cortez
 
 ## 👨‍💻 Créditos
-- Feito com 💚 por [Seu Nome ou Squad]
 - Design, código e ideias originais
 - Powered by [Supabase](https://supabase.com/), [Expo](https://expo.dev/), [Google Gemini](https://ai.google.dev/)
 
