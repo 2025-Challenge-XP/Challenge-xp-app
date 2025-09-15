@@ -7,7 +7,6 @@ import {
   ImageBackground,
 } from 'react-native';
 import { useFonts, Sora_400Regular, Sora_500Medium, Sora_700Bold } from '@expo-google-fonts/sora';
-import AppLoading from 'expo-app-loading';
 import { router } from 'expo-router';
 import { SafeAreaWrapper } from '@/components/ui/SafeAreaWrapper';
 import { theme } from '@/lib/theme';
@@ -23,7 +22,7 @@ export default function LoginScreen() {
   });
 
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return null;
   }
   
   LogBox.ignoreLogs([

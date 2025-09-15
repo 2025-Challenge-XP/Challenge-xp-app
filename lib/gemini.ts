@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI, GenerativeModel, ChatSession } from "@google/generative-ai";
 
-const GEMINI_API_KEY = "AIzaSyBw9JuI1evtrFif537zDIX3i7BZBTBX7l8";
+const GEMINI_API_KEY = "AIzaSyAI5jIBs2aPgFOwXoSKtrWqXsY1EE67bS4";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const GENERATION_CONFIG = {
@@ -21,8 +21,8 @@ export interface Usuario {
     retirement?: boolean;
     shortTermProfit?: boolean;
     emergencyReserve?: boolean;
-    other?: boolean;        // <-- Adicione esta linha
-    otherText?: string;     // <-- Adicione esta linha
+    other?: boolean;        
+    otherText?: string;     
   };
   assetInterests: {
     crypto?: boolean;

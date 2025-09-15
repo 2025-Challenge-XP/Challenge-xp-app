@@ -140,23 +140,6 @@ export const signUpWithEmail = async (email: string, password: string, nickname:
   }
 };
 
-// Reset password
-export const resetPassword = async (email: string): Promise<AuthError | null> => {
-  try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'app://reset-password',
-    });
-
-    if (error) {
-      return { message: error.message };
-    }
-
-    return null;
-  } catch (error: any) {
-    return { message: error.message || 'An unexpected error occurred' };
-  }
-};
-
 // Sign out
 export const signOut = async (): Promise<AuthError | null> => {
   try {
