@@ -3,6 +3,7 @@ import { supabase } from './supabase';
 import { supabaseUrl } from './supabase';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 // Types
 export type AuthError = {
@@ -163,9 +164,41 @@ export const getCurrentUser = async () => {
 
 export const limparAsyncStorage = async () => {
   try {
-    await AsyncStorage.clear();
-    console.log('AsyncStorage limpo com sucesso!');
+    // Remove apenas dados de sessão, mantém email/senha para biometria
+    await AsyncStorage.removeItem('session_token');
+    await AsyncStorage.removeItem('user_id');
+    // Se houver outras chaves de sessão, adicione aqui
+    console.log('Dados de sessão removidos, credenciais biométricas mantidas.');
   } catch (e) {
-    console.error('Erro ao limpar AsyncStorage:', e);
+    console.error('Erro ao limpar dados de sessão:', e);
+  }
+};
+
+// Relogin biométrico (digital, FaceID, etc.)
+export const biometricRelogin = async (): Promise<AuthError | null> => {
+  try {
+    const hasHardware = await LocalAuthentication.hasHardwareAsync();
+    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+    if (!hasHardware || !isEnrolled) {
+      return { message: 'Biometria não disponível ou não cadastrada.' };
+    }
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: 'Autentique-se com sua digital',
+      fallbackLabel: 'Usar senha',
+    });
+    if (result.success) {
+      // Recupera email/senha do AsyncStorage (ou token, se preferir)
+      const email = await AsyncStorage.getItem('user_email');
+      const password = await AsyncStorage.getItem('user_password');
+      if (email && password) {
+        return await signInWithEmail(email, password);
+      } else {
+        return { message: 'Credenciais não encontradas para relogin automático.' };
+      }
+    } else {
+      return { message: 'Autenticação biométrica falhou ou foi cancelada.' };
+    }
+  } catch (error: any) {
+    return { message: error.message || 'Erro inesperado na biometria.' };
   }
 };

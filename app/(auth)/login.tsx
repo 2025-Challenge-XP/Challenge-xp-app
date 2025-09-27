@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,52 +11,81 @@ import { Link, router } from 'expo-router';
 import { SafeAreaWrapper } from '@/components/ui/SafeAreaWrapper';
 import AuthForm from '@/components/auth/AuthForm';
 import { LoginFormData, loginSchema } from '@/lib/validation';
-import { signInWithEmail } from '@/lib/auth';
+import { signInWithEmail, biometricRelogin } from '@/lib/auth';
 import { theme } from '@/lib/theme';
 import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
 
-export default function LoginScreen() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleLogin = async (data: LoginFormData) => {
-    setIsLoading(true);
-    setError(null);
-
-    const result = await signInWithEmail(data.email, data.password);
-
-    if (result) {
-      setError(result.message);
-    }
-
-    setIsLoading(false);
+  const LoginScreen: React.FC = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+  
+    // Chama biometria apenas ao clicar no campo de email
+    const handleEmailFocus = async () => {
+      setIsLoading(true);
+      setError(null);
+      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+      const email = await AsyncStorage.getItem('user_email');
+      const password = await AsyncStorage.getItem('user_password');
+      if (email && password) {
+        const result = await biometricRelogin();
+        if (result && result.message && result.message !== 'Biometria não disponível ou não cadastrada.' && result.message !== 'Credenciais não encontradas para relogin automático.') {
+          setError(result.message);
+        }
+      }
+      setIsLoading(false);
+    };
+  
+    const handleLogin = async (data: LoginFormData) => {
+      setIsLoading(true);
+      setError(null);
+      const result = await signInWithEmail(data.email, data.password);
+      if (!result) {
+        // Login bem-sucedido: salva credenciais para biometria
+        try {
+          await import('@react-native-async-storage/async-storage').then(AsyncStorageModule => {
+            const AsyncStorage = AsyncStorageModule.default;
+            AsyncStorage.setItem('user_email', data.email);
+            AsyncStorage.setItem('user_password', data.password);
+          });
+        } catch (e) {
+          // Não impede login, apenas loga erro
+          console.error('Erro ao salvar credenciais para biometria:', e);
+        }
+      } else {
+        setError(result.message);
+      }
+      setIsLoading(false);
+    };
+  
+    return (
+      <SafeAreaWrapper style={styles.container}>
+        <Animated.View
+          style={styles.content}
+          entering={SlideInRight.duration(400).springify()}
+        >
+  
+          <AuthForm
+            type="login"
+            onSubmit={handleLogin}
+            isLoading={isLoading}
+            error={error}
+            validationSchema={loginSchema}
+            onEmailFocus={handleEmailFocus}
+          />
+  
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Não possui uma conta? </Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+              <Text style={styles.footerLink}>Cadastre-se</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </SafeAreaWrapper>
+    );
   };
+  
+  export default LoginScreen;
 
-  return (
-    <SafeAreaWrapper style={styles.container}>
-      <Animated.View
-        style={styles.content}
-        entering={SlideInRight.duration(400).springify()}
-      >
-
-        <AuthForm
-          type="login"
-          onSubmit={handleLogin}
-          isLoading={isLoading}
-          error={error}
-          validationSchema={loginSchema}
-        />
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Não possui uma conta? </Text>
-          <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-            <Text style={styles.footerLink}>Cadastre-se</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-    </SafeAreaWrapper>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {

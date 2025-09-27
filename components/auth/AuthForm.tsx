@@ -30,15 +30,16 @@ interface AuthFormProps {
   isLoading: boolean;
   error?: string | null;
   validationSchema: z.ZodSchema<any>;
+  onEmailFocus?: () => void;
 }
 
-export const AuthForm: React.FC<AuthFormProps> = ({
+const AuthForm: React.FC<AuthFormProps> = ({
   type,
   onSubmit,
   isLoading,
   error,
   validationSchema,
-  
+  onEmailFocus,
 }) => {
   const {
     control,
@@ -151,6 +152,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
+                  onFocus={onEmailFocus}
                   placeholder="exemplo@email.com"
                   keyboardType="email-address"
                   autoCapitalize="none"

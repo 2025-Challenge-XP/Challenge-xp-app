@@ -34,6 +34,7 @@ interface InputProps {
   blurOnSubmit?: boolean;
   autoFocus?: boolean;
   onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -58,12 +59,16 @@ export const Input: React.FC<InputProps> = ({
   blurOnSubmit,
   autoFocus,
   onBlur,
+  onFocus,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(!secureTextEntry);
 
   // Handle input focus/blur
-  const handleFocus = () => setIsFocused(true);
+  const handleFocus = (e?: any) => {
+    setIsFocused(true);
+    if (onFocus) onFocus();
+  };
   const handleBlur = () => setIsFocused(false);
 
   // Toggle password visibility
@@ -72,41 +77,33 @@ export const Input: React.FC<InputProps> = ({
   return (
     <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View
-        style={[
-          styles.inputContainer,
-          isFocused && styles.inputFocused,
-          error && styles.inputError,
-          !editable && styles.inputDisabled,
-        ]}
-      >
-        {icon && <View style={styles.iconContainer}>{icon}</View>}
+      <View style={styles.inputContainer}>
         <TextInput
           style={[
             styles.input,
-            icon ? styles.inputWithIcon : null,
-            secureTextEntry ? styles.inputWithToggle : null,
-            multiline ? styles.inputMultiline : null,
             inputStyle,
+            !editable && styles.inputDisabled,
           ]}
           value={value}
           onChangeText={onChangeText}
-          onBlur={onBlur || handleBlur}
           placeholder={placeholder}
-          placeholderTextColor={theme.colors.neutrals[400]}
-          secureTextEntry={secureTextEntry && !showPassword}
+          secureTextEntry={!showPassword}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           autoCorrect={autoCorrect}
-          multiline={multiline}
-          numberOfLines={numberOfLines}
           editable={editable}
           maxLength={maxLength}
-          onFocus={handleFocus}
           returnKeyType={returnKeyType}
           onSubmitEditing={onSubmitEditing}
           blurOnSubmit={blurOnSubmit}
           autoFocus={autoFocus}
+          onFocus={handleFocus}
+          onBlur={() => {
+            handleBlur();
+            if (onBlur) onBlur();
+          }}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
         />
         {secureTextEntry && (
           <TouchableOpacity
