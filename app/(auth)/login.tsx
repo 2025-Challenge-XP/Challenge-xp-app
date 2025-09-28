@@ -14,6 +14,7 @@ import { LoginFormData, loginSchema } from '@/lib/validation';
 import { signInWithEmail, biometricRelogin } from '@/lib/auth';
 import { theme } from '@/lib/theme';
 import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
   const LoginScreen: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +24,6 @@ import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
     const handleEmailFocus = async () => {
       setIsLoading(true);
       setError(null);
-      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
       const email = await AsyncStorage.getItem('user_email');
       const password = await AsyncStorage.getItem('user_password');
       if (email && password) {
